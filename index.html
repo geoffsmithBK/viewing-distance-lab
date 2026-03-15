@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screen Size &amp; Viewing Distance Calculator</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232736;
+    --border: #2e3347;
+    --text: #e2e4ed;
+    --text-dim: #8b8fa7;
+    --accent: #6c8cff;
+    --accent-glow: rgba(108,140,255,0.15);
+    --green: #4ade80;
+    --red: #f87171;
+    --amber: #fbbf24;
+    --cyan: #22d3ee;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .panel-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+
+  /* Inputs */
+  .input-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .input-group:last-child { margin-bottom: 0; }
+
+  .input-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+
+  .input-value {
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .input-value .unit {
+    color: var(--text-dim);
+    font-weight: 400;
+    font-size: 0.75rem;
+    margin-left: 2px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--surface2);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 8px var(--accent-glow);
+    cursor: pointer;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 8px var(--accent-glow);
+    cursor: pointer;
+  }
+
+  .input-direct {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+  }
+
+  .input-direct input[type="number"] {
+    width: 80px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 0.3rem 0.5rem;
+    font-size: 0.82rem;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .input-direct input[type="number"]:focus {
+    border-color: var(--accent);
+  }
+
+  .input-direct .unit-label {
+    color: var(--text-dim);
+    font-size: 0.75rem;
+  }
+
+  /* Presets */
+  .presets {
+    margin-bottom: 1.25rem;
+  }
+
+  .preset-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+  }
+
+  .preset-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    padding: 0.25rem 0.55rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .preset-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    background: var(--accent-glow);
+  }
+
+  /* Results */
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .result-card {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 0.85rem;
+  }
+
+  .result-card.wide {
+    grid-column: 1 / -1;
+  }
+
+  .result-label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .result-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-sub {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 0.15rem;
+  }
+
+  .result-value .unit {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--text-dim);
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .badge-yes { background: rgba(74,222,128,0.15); color: var(--green); }
+  .badge-no { background: rgba(248,113,113,0.15); color: var(--red); }
+  .badge-info { background: rgba(108,140,255,0.15); color: var(--accent); }
+
+  /* Diagram */
+  .diagram-container {
+    margin-top: 1rem;
+  }
+
+  svg.diagram {
+    width: 100%;
+    height: auto;
+  }
+
+  /* HAoV reference bar */
+  .haov-section {
+    margin-top: 1rem;
+  }
+
+  .haov-bar-container {
+    position: relative;
+    height: 28px;
+    background: var(--surface2);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 0.75rem 0 0.5rem;
+  }
+
+  .haov-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.3s;
+  }
+
+  .haov-refs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.2rem 1rem;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+  }
+
+  .haov-ref {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.1rem 0;
+  }
+
+  .haov-ref-val { color: var(--text); font-weight: 500; }
+
+  .haov-marker {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    opacity: 0.4;
+  }
+
+  /* 4K window bar */
+  .window-bar-container {
+    position: relative;
+    height: 20px;
+    background: var(--surface2);
+    border-radius: 4px;
+    margin: 0.5rem 0 0.25rem;
+    overflow: visible;
+  }
+
+  .window-bar-range {
+    position: absolute;
+    height: 100%;
+    border-radius: 4px;
+    background: rgba(74,222,128,0.2);
+    border: 1px solid rgba(74,222,128,0.4);
+  }
+
+  .window-bar-pos {
+    position: absolute;
+    top: -2px;
+    width: 3px;
+    height: 24px;
+    border-radius: 2px;
+    background: var(--accent);
+    transform: translateX(-50%);
+  }
+
+  .window-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+  }
+
+  /* Side-view diagram */
+  .side-view {
+    margin-top: 1rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+
+  .side-view-title {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Screen Size &amp; Viewing Distance Calculator</h1>
+  <p class="subtitle">Model screen size, resolution, and viewing distance for any environment</p>
+
+  <div class="grid">
+    <!-- LEFT: Inputs -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">Inputs</div>
+
+        <div class="input-group">
+          <div class="input-label">
+            <span>Viewing Distance</span>
+            <span class="input-value"><span id="dist-val">39.4</span><span class="unit"> in</span> <span style="color:var(--text-dim);font-weight:400;font-size:0.75rem">(<span id="dist-ft">3.3</span> ft)</span></span>
+          </div>
+          <input type="range" id="dist-slider" min="12" max="240" step="0.1" value="39.4">
+          <div class="input-direct">
+            <input type="number" id="dist-input" value="39.4" min="6" max="600" step="0.1">
+            <span class="unit-label">inches</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div class="input-label">
+            <span>Screen Diagonal</span>
+            <span class="input-value"><span id="diag-val">47.5</span><span class="unit"> in</span></span>
+          </div>
+          <input type="range" id="diag-slider" min="5" max="120" step="0.5" value="47.5">
+          <div class="input-direct">
+            <input type="number" id="diag-input" value="47.5" min="5" max="200" step="0.5">
+            <span class="unit-label">inches</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div class="input-label">
+            <span>Horizontal Resolution</span>
+            <span class="input-value"><span id="hres-val">3840</span><span class="unit"> px</span></span>
+          </div>
+          <input type="range" id="hres-slider" min="640" max="7680" step="1" value="3840">
+          <div class="input-direct">
+            <input type="number" id="hres-input" value="3840" min="320" max="15360" step="1">
+            <span class="unit-label">px</span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div class="input-label">
+            <span>Vertical Resolution</span>
+            <span class="input-value"><span id="vres-val">2160</span><span class="unit"> px</span></span>
+          </div>
+          <input type="range" id="vres-slider" min="480" max="4320" step="1" value="2160">
+          <div class="input-direct">
+            <input type="number" id="vres-input" value="2160" min="240" max="8640" step="1">
+            <span class="unit-label">px</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:0.75rem;">
+        <div class="panel-title">Presets</div>
+
+        <div class="presets">
+          <div class="input-label"><span>Resolution</span></div>
+          <div class="preset-row">
+            <button class="preset-btn" onclick="setRes(1280,720)">720p</button>
+            <button class="preset-btn" onclick="setRes(1920,1080)">1080p</button>
+            <button class="preset-btn" onclick="setRes(2560,1440)">1440p</button>
+            <button class="preset-btn" onclick="setRes(3840,2160)">4K UHD</button>
+            <button class="preset-btn" onclick="setRes(5120,2880)">5K</button>
+            <button class="preset-btn" onclick="setRes(7680,4320)">8K</button>
+          </div>
+        </div>
+
+        <div class="presets">
+          <div class="input-label"><span>Ultrawide</span></div>
+          <div class="preset-row">
+            <button class="preset-btn" onclick="setRes(2560,1080)">UW 1080p</button>
+            <button class="preset-btn" onclick="setRes(3440,1440)">UW 1440p</button>
+            <button class="preset-btn" onclick="setRes(5120,2160)">UW 4K</button>
+          </div>
+        </div>
+
+        <div class="presets">
+          <div class="input-label"><span>Common Screens</span></div>
+          <div class="preset-row">
+            <button class="preset-btn" onclick="setScreen(27,2560,1440,24)">27" Monitor</button>
+            <button class="preset-btn" onclick="setScreen(32,3840,2160,30)">32" 4K Monitor</button>
+            <button class="preset-btn" onclick="setScreen(55,3840,2160,84)">55" 4K TV</button>
+            <button class="preset-btn" onclick="setScreen(65,3840,2160,96)">65" 4K TV</button>
+            <button class="preset-btn" onclick="setScreen(77,3840,2160,108)">77" 4K TV</button>
+            <button class="preset-btn" onclick="setScreen(85,3840,2160,120)">85" 4K TV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">Calculated Results</div>
+
+        <div class="results-grid">
+          <div class="result-card">
+            <div class="result-label">Pixel Density</div>
+            <div class="result-value"><span id="r-ppi">93</span> <span class="unit">PPI</span></div>
+            <div class="result-sub" id="r-ppi-sub">pixels per inch</div>
+          </div>
+
+          <div class="result-card">
+            <div class="result-label">Angular Density</div>
+            <div class="result-value"><span id="r-ppd">64</span> <span class="unit">pp&deg;</span></div>
+            <div class="result-sub" id="r-ppd-sub">pixels per degree</div>
+          </div>
+
+          <div class="result-card">
+            <div class="result-label">Pixels Visible?</div>
+            <div class="result-value" id="r-visible">No</div>
+            <div class="result-sub" id="r-visible-sub">&gt;58 pp&deg; = Apple "Retina"</div>
+          </div>
+
+          <div class="result-card">
+            <div class="result-label">Min. Viewing Distance</div>
+            <div class="result-value"><span id="r-min-dist">37</span> <span class="unit">in</span></div>
+            <div class="result-sub" id="r-min-dist-sub">pixel visibility threshold</div>
+          </div>
+
+          <div class="result-card wide" id="r-4k-card">
+            <div class="result-label">4K Enhanced Viewing</div>
+            <div class="result-value" id="r-4k">TRUE</div>
+            <div class="result-sub" id="r-4k-sub">You can perceive detail beyond 1080p at this distance</div>
+            <div class="window-bar-container" id="window-bar-container">
+              <div class="window-bar-range" id="window-bar-range"></div>
+              <div class="window-bar-pos" id="window-bar-pos"></div>
+            </div>
+            <div class="window-labels">
+              <span id="window-lo-label">3.1 ft</span>
+              <span id="window-range-label" style="color:var(--text);font-weight:500;"></span>
+              <span id="window-hi-label">6.1 ft</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Horizontal Angle of View -->
+        <div class="haov-section">
+          <div class="result-card wide">
+            <div class="result-label">Horizontal Angle of View</div>
+            <div class="result-value"><span id="r-haov">56</span><span class="unit">&deg;</span></div>
+            <div class="result-sub" id="r-haov-sub"></div>
+            <div class="haov-bar-container" id="haov-bar-container">
+              <div class="haov-fill" id="haov-fill"></div>
+              <!-- reference markers -->
+            </div>
+            <div class="haov-refs" id="haov-refs"></div>
+          </div>
+        </div>
+
+        <div class="result-card wide" style="margin-top:0.75rem;">
+          <div class="result-label">Max HAoV at Pixel Visibility Threshold</div>
+          <div class="result-value"><span id="r-max-haov">64</span><span class="unit">&deg;</span></div>
+          <div class="result-sub" id="r-max-haov-sub">Maximum angle before pixels become visible</div>
+        </div>
+      </div>
+
+      <!-- Side-view diagram -->
+      <div class="panel" style="margin-top:0.75rem;">
+        <div class="panel-title">Viewing Geometry</div>
+        <div class="diagram-container">
+          <svg class="diagram" id="diagram-svg" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+        <div style="display:flex;gap:1.5rem;margin-top:0.5rem;flex-wrap:wrap;">
+          <div style="font-size:0.68rem;color:var(--text-dim);display:flex;align-items:center;gap:0.35rem;">
+            <span style="display:inline-block;width:12px;height:3px;background:var(--accent);border-radius:1px;"></span> Screen
+          </div>
+          <div style="font-size:0.68rem;color:var(--text-dim);display:flex;align-items:center;gap:0.35rem;">
+            <span style="display:inline-block;width:12px;height:3px;background:var(--cyan);border-radius:1px;opacity:0.5;"></span> Viewing angle
+          </div>
+          <div style="font-size:0.68rem;color:var(--text-dim);display:flex;align-items:center;gap:0.35rem;">
+            <span style="display:inline-block;width:12px;height:3px;background:var(--green);border-radius:1px;opacity:0.5;"></span> 4K benefit zone
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen dimensions -->
+      <div class="panel" style="margin-top:0.75rem;">
+        <div class="panel-title">Screen Dimensions</div>
+        <div class="results-grid">
+          <div class="result-card">
+            <div class="result-label">Width</div>
+            <div class="result-value"><span id="r-width">41.4</span> <span class="unit">in</span></div>
+            <div class="result-sub" id="r-width-cm"></div>
+          </div>
+          <div class="result-card">
+            <div class="result-label">Height</div>
+            <div class="result-value"><span id="r-height">23.3</span> <span class="unit">in</span></div>
+            <div class="result-sub" id="r-height-cm"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // DOM refs
+  var distSlider = document.getElementById('dist-slider');
+  var diagSlider = document.getElementById('diag-slider');
+  var hresSlider = document.getElementById('hres-slider');
+  var vresSlider = document.getElementById('vres-slider');
+  var distInput  = document.getElementById('dist-input');
+  var diagInput  = document.getElementById('diag-input');
+  var hresInput  = document.getElementById('hres-input');
+  var vresInput  = document.getElementById('vres-input');
+
+  var DEG = Math.PI / 180;
+  var RETINA_THRESHOLD = 58; // pp° for Apple "Retina"
+  var ACUITY_PPD = 60;       // 1 arcminute = 60 pp° (20/20 vision threshold)
+
+  var HAOV_REFS = [
+    { deg: 10,  label: 'SMPTE NTSC rec.' },
+    { deg: 28,  label: 'THX theatrical min.' },
+    { deg: 30,  label: 'SMPTE HDTV rec.' },
+    { deg: 40,  label: 'THX home optimal' },
+    { deg: 60,  label: 'IMAX theatrical min.' },
+    { deg: 68,  label: 'Cinerama Dome best seats' },
+    { deg: 120, label: 'IMAX theatrical max.' },
+    { deg: 140, label: 'Human max. HAoV' }
+  ];
+
+  function calc() {
+    var dist = parseFloat(distSlider.value);
+    var diag = parseFloat(diagSlider.value);
+    var hres = parseInt(hresSlider.value);
+    var vres = parseInt(vresSlider.value);
+
+    // Screen geometry (16:9-aware but works for any aspect)
+    var aspect = hres / vres;
+    var theta = Math.atan(1 / aspect);
+    var width = diag * Math.cos(theta);
+    var height = diag * Math.sin(theta);
+
+    // Pixel density
+    var ppi = hres / width;
+
+    // Angular density (pixels per degree)
+    var ppd = ppi * dist * DEG;
+
+    // Pixel visibility
+    var pixelsVisible = ppd < RETINA_THRESHOLD;
+
+    // Minimum viewing distance (where pixels become invisible at 1 arcmin acuity)
+    var minDist = ACUITY_PPD / (ppi * DEG);
+
+    // Horizontal angle of view
+    var haov = 2 * Math.atan(width / (2 * dist)) / DEG;
+
+    // Max HAoV at pixel visibility threshold
+    var maxHaov = 2 * Math.atan(width / (2 * minDist)) / DEG;
+
+    // 4K enhanced viewing (only meaningful for UHD+)
+    var isUHD = hres >= 3840 && vres >= 2160;
+    var halfHres = Math.round(hres / 2);
+    var halfVres = Math.round(vres / 2);
+    var ppiHalf = halfHres / width;
+    var minDistHalf = ACUITY_PPD / (ppiHalf * DEG);  // upper bound of 4K window
+    var fourKWindow = isUHD ? { lo: minDist, hi: minDistHalf } : null;
+    var fourKEnhanced = isUHD && dist >= minDist && dist <= minDistHalf;
+
+    // Update display
+    document.getElementById('dist-val').textContent = dist.toFixed(1);
+    document.getElementById('dist-ft').textContent = (dist / 12).toFixed(1);
+    document.getElementById('diag-val').textContent = diag.toFixed(1);
+    document.getElementById('hres-val').textContent = hres;
+    document.getElementById('vres-val').textContent = vres;
+
+    document.getElementById('r-ppi').textContent = Math.round(ppi);
+    document.getElementById('r-ppd').textContent = Math.round(ppd);
+
+    var visEl = document.getElementById('r-visible');
+    if (pixelsVisible) {
+      visEl.innerHTML = '<span class="badge badge-no">Yes — pixels visible</span>';
+    } else {
+      visEl.innerHTML = '<span class="badge badge-yes">No — "Retina" quality</span>';
+    }
+
+    document.getElementById('r-min-dist').textContent = Math.round(minDist);
+    document.getElementById('r-min-dist-sub').textContent =
+      (minDist / 12).toFixed(1) + ' ft — pixel visibility threshold';
+
+    // 4K section
+    var fourKCard = document.getElementById('r-4k-card');
+    if (isUHD) {
+      fourKCard.style.display = '';
+      var fourKEl = document.getElementById('r-4k');
+      if (fourKEnhanced) {
+        fourKEl.innerHTML = '<span class="badge badge-yes">YES</span>';
+        document.getElementById('r-4k-sub').textContent =
+          'You can perceive detail beyond ' + halfHres + '\u00d7' + halfVres + ' at this distance';
+      } else if (dist < minDist) {
+        fourKEl.innerHTML = '<span class="badge badge-yes">YES</span>';
+        document.getElementById('r-4k-sub').textContent =
+          'Closer than pixel threshold — individual pixels may be visible';
+      } else {
+        fourKEl.innerHTML = '<span class="badge badge-no">NO</span>';
+        document.getElementById('r-4k-sub').textContent =
+          'Too far to distinguish from ' + halfHres + '\u00d7' + halfVres;
+      }
+
+      // Window bar
+      var barW = document.getElementById('window-bar-container').clientWidth || 300;
+      var barMin = 0;
+      var barMax = Math.max(minDistHalf * 1.3, dist * 1.2);
+      var lo = fourKWindow.lo;
+      var hi = fourKWindow.hi;
+      var pctLo = ((lo - barMin) / (barMax - barMin)) * 100;
+      var pctHi = ((hi - barMin) / (barMax - barMin)) * 100;
+      var pctPos = ((dist - barMin) / (barMax - barMin)) * 100;
+
+      document.getElementById('window-bar-range').style.left = pctLo + '%';
+      document.getElementById('window-bar-range').style.width = (pctHi - pctLo) + '%';
+      document.getElementById('window-bar-pos').style.left = Math.min(Math.max(pctPos, 1), 99) + '%';
+      document.getElementById('window-lo-label').textContent = (lo / 12).toFixed(1) + ' ft';
+      document.getElementById('window-hi-label').textContent = (hi / 12).toFixed(1) + ' ft';
+      document.getElementById('window-range-label').textContent =
+        'You: ' + (dist / 12).toFixed(1) + ' ft';
+    } else {
+      fourKCard.style.display = 'none';
+    }
+
+    // HAoV
+    document.getElementById('r-haov').textContent = haov.toFixed(1);
+    var haovDesc = '';
+    for (var i = HAOV_REFS.length - 1; i >= 0; i--) {
+      if (haov >= HAOV_REFS[i].deg) {
+        haovDesc = 'Exceeds ' + HAOV_REFS[i].label + ' (' + HAOV_REFS[i].deg + '\u00b0)';
+        break;
+      }
+    }
+    if (!haovDesc && haov < HAOV_REFS[0].deg) {
+      haovDesc = 'Below ' + HAOV_REFS[0].label + ' (' + HAOV_REFS[0].deg + '\u00b0)';
+    }
+    document.getElementById('r-haov-sub').textContent = haovDesc;
+
+    // HAoV bar
+    var haovMax = 150;
+    var fillPct = Math.min((haov / haovMax) * 100, 100);
+    var fillEl = document.getElementById('haov-fill');
+    fillEl.style.width = fillPct + '%';
+    if (haov >= 60) {
+      fillEl.style.background = 'linear-gradient(90deg, var(--accent), var(--green))';
+    } else if (haov >= 30) {
+      fillEl.style.background = 'linear-gradient(90deg, var(--accent), var(--cyan))';
+    } else {
+      fillEl.style.background = 'var(--accent)';
+    }
+
+    // HAoV reference markers
+    var barContainer = document.getElementById('haov-bar-container');
+    barContainer.querySelectorAll('.haov-marker').forEach(function(m) { m.remove(); });
+    HAOV_REFS.forEach(function(ref) {
+      if (ref.deg <= haovMax) {
+        var marker = document.createElement('div');
+        marker.className = 'haov-marker';
+        marker.style.left = (ref.deg / haovMax * 100) + '%';
+        marker.style.background = ref.deg <= haov ? 'var(--green)' : 'var(--text-dim)';
+        barContainer.appendChild(marker);
+      }
+    });
+
+    // HAoV ref list
+    var refsHTML = '';
+    HAOV_REFS.forEach(function(ref) {
+      var active = haov >= ref.deg;
+      refsHTML += '<div class="haov-ref">' +
+        '<span style="' + (active ? 'color:var(--text)' : '') + '">' + ref.label + '</span>' +
+        '<span class="haov-ref-val" style="' + (active ? 'color:var(--green)' : '') + '">' +
+        ref.deg + '\u00b0</span></div>';
+    });
+    document.getElementById('haov-refs').innerHTML = refsHTML;
+
+    // Max HAoV
+    document.getElementById('r-max-haov').textContent = maxHaov.toFixed(1);
+
+    // Screen dimensions
+    document.getElementById('r-width').textContent = width.toFixed(1);
+    document.getElementById('r-width-cm').textContent = (width * 2.54).toFixed(1) + ' cm';
+    document.getElementById('r-height').textContent = height.toFixed(1);
+    document.getElementById('r-height-cm').textContent = (height * 2.54).toFixed(1) + ' cm';
+
+    // Draw diagram
+    drawDiagram(dist, width, height, haov, minDist, isUHD ? minDistHalf : null);
+  }
+
+  function drawDiagram(dist, screenW, screenH, haov, minDist, maxDistHalf) {
+    var svg = document.getElementById('diagram-svg');
+    var svgW = 600, svgH = 300;
+    var pad = 40;
+
+    // Scale so the scene fits
+    var maxPhysical = Math.max(dist, screenW / 2) * 1.15;
+    var scale = (svgW - pad * 2) / (maxPhysical + screenW / 2);
+    var scaleV = (svgH - pad * 2) / (Math.max(screenH, dist * Math.tan(haov * DEG / 2) * 2) * 0.6);
+    scale = Math.min(scale, scaleV, 4);
+
+    // Viewer at left, screen at right
+    var viewerX = pad + 20;
+    var viewerY = svgH / 2;
+    var screenX = viewerX + dist * scale;
+    var screenTopY = viewerY - (screenH / 2) * scale;
+    var screenBotY = viewerY + (screenH / 2) * scale;
+
+    // HAoV cone (horizontal, shown as top-down-ish)
+    var halfAngle = haov * DEG / 2;
+    var coneLen = dist * scale;
+    var coneHalfW = dist * Math.tan(halfAngle) * scale;
+
+    var html = '';
+
+    // 4K benefit zone (green region)
+    if (maxDistHalf !== null) {
+      var zoneStart = Math.max(minDist * scale, 0);
+      var zoneEnd = maxDistHalf * scale;
+      html += '<rect x="' + (viewerX + zoneStart) + '" y="' + (pad) +
+        '" width="' + (zoneEnd - zoneStart) + '" height="' + (svgH - pad * 2) +
+        '" fill="rgba(74,222,128,0.06)" rx="4"/>';
+      // labels
+      if (zoneEnd - zoneStart > 40) {
+        html += '<text x="' + (viewerX + (zoneStart + zoneEnd) / 2) + '" y="' + (svgH - pad + 16) +
+          '" text-anchor="middle" fill="#4ade80" font-size="9" opacity="0.7">4K benefit zone</text>';
+      }
+    }
+
+    // Viewing angle cone
+    html += '<polygon points="' +
+      viewerX + ',' + viewerY + ' ' +
+      (viewerX + coneLen) + ',' + (viewerY - coneHalfW) + ' ' +
+      (viewerX + coneLen) + ',' + (viewerY + coneHalfW) +
+      '" fill="rgba(34,211,238,0.07)" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>';
+
+    // Viewing distance line
+    html += '<line x1="' + viewerX + '" y1="' + (viewerY + coneHalfW + 20) +
+      '" x2="' + screenX + '" y2="' + (viewerY + coneHalfW + 20) +
+      '" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="4,3"/>';
+    html += '<text x="' + ((viewerX + screenX) / 2) + '" y="' + (viewerY + coneHalfW + 34) +
+      '" text-anchor="middle" fill="var(--text-dim)" font-size="10">' +
+      (dist).toFixed(1) + ' in (' + (dist / 12).toFixed(1) + ' ft)</text>';
+
+    // Screen (thick line)
+    html += '<line x1="' + screenX + '" y1="' + screenTopY +
+      '" x2="' + screenX + '" y2="' + screenBotY +
+      '" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>';
+
+    // Screen size label
+    html += '<text x="' + (screenX + 10) + '" y="' + (viewerY) +
+      '" fill="var(--accent)" font-size="10" dominant-baseline="middle">' +
+      parseFloat(diagSlider.value).toFixed(1) + '"</text>';
+
+    // Viewer (eye icon)
+    html += '<circle cx="' + viewerX + '" cy="' + viewerY +
+      '" r="6" fill="var(--surface2)" stroke="var(--cyan)" stroke-width="2"/>';
+    html += '<circle cx="' + viewerX + '" cy="' + viewerY +
+      '" r="2" fill="var(--cyan)"/>';
+
+    // Angle arc
+    var arcR = 30;
+    var ax1 = viewerX + arcR;
+    var ay1 = viewerY;
+    var ax2 = viewerX + arcR * Math.cos(halfAngle);
+    var ay2 = viewerY - arcR * Math.sin(halfAngle);
+    var largeArc = halfAngle > Math.PI / 2 ? 1 : 0;
+    html += '<path d="M' + ax1 + ',' + ay1 + ' A' + arcR + ',' + arcR + ' 0 ' +
+      largeArc + ' 0 ' + ax2 + ',' + ay2 + '" fill="none" stroke="var(--cyan)" stroke-width="1.5" opacity="0.6"/>';
+    html += '<text x="' + (viewerX + arcR + 8) + '" y="' + (viewerY - 6) +
+      '" fill="var(--cyan)" font-size="10" opacity="0.8">' + haov.toFixed(1) + '\u00b0</text>';
+
+    svg.innerHTML = html;
+  }
+
+  // Sync slider <-> input
+  function sync(slider, input, isInt) {
+    slider.addEventListener('input', function() {
+      input.value = slider.value;
+      calc();
+    });
+    input.addEventListener('input', function() {
+      var v = isInt ? parseInt(input.value) : parseFloat(input.value);
+      if (!isNaN(v)) {
+        if (v >= parseFloat(slider.min) && v <= parseFloat(slider.max)) {
+          slider.value = v;
+        }
+        calc();
+      }
+    });
+  }
+
+  sync(distSlider, distInput, false);
+  sync(diagSlider, diagInput, false);
+  sync(hresSlider, hresInput, true);
+  sync(vresSlider, vresInput, true);
+
+  // Presets
+  window.setRes = function(h, v) {
+    hresSlider.value = h; hresInput.value = h;
+    vresSlider.value = v; vresInput.value = v;
+    calc();
+  };
+
+  window.setScreen = function(diag, h, v, dist) {
+    diagSlider.value = diag; diagInput.value = diag;
+    hresSlider.value = h; hresInput.value = h;
+    vresSlider.value = v; vresInput.value = v;
+    distSlider.value = dist; distInput.value = dist;
+    calc();
+  };
+
+  // Initial calc
+  calc();
+})();
+</script>
+</body>
+</html>
