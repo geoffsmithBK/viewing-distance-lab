@@ -1,885 +1,881 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Screen Size &amp; Viewing Distance Calculator</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Viewing Distance Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          ink: {
+            950: '#07080b',
+            900: '#0b0d12',
+            850: '#0f1218',
+            800: '#12161f',
+            750: '#161b26',
+            700: '#1d2330',
+            600: '#2a3142',
+            500: '#3a4358',
+          },
+          accent: {
+            DEFAULT: '#ff2e4d',
+            glow: '#ff3b5c',
+            soft: '#ff6b82',
+          },
+          cyan2: '#22d3ee',
+          lime2: '#a3e635',
+          amber2: '#fbbf24',
+        },
+      },
+    },
+  };
+</script>
 <style>
-  :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #232736;
-    --border: #2e3347;
-    --text: #e2e4ed;
-    --text-dim: #8b8fa7;
-    --accent: #6c8cff;
-    --accent-glow: rgba(108,140,255,0.15);
-    --green: #4ade80;
-    --red: #f87171;
-    --amber: #fbbf24;
-    --cyan: #22d3ee;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
+  html, body { background: #07080b; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv11","ss01","ss03";
+    color: #e6e8ef;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(255,46,77,0.08), transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, rgba(34,211,238,0.06), transparent 60%),
+      #07080b;
     min-height: 100vh;
   }
-
-  .app {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: "zero","ss01"; }
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.005));
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    backdrop-filter: blur(6px);
   }
-
-  h1 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    background: linear-gradient(135deg, var(--accent), var(--cyan));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .subtitle {
-    color: var(--text-dim);
-    font-size: 0.85rem;
-    margin-bottom: 2rem;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 1.5rem;
-    align-items: start;
-  }
-
-  @media (max-width: 860px) {
-    .grid { grid-template-columns: 1fr; }
-  }
-
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem;
-  }
-
-  .panel-title {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-dim);
-    margin-bottom: 1rem;
-  }
-
-  /* Inputs */
-  .input-group {
-    margin-bottom: 1.25rem;
-  }
-
-  .input-group:last-child { margin-bottom: 0; }
-
-  .input-label {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    font-size: 0.82rem;
+  .hairline { border-color: rgba(255,255,255,0.07); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03);
+    color: #c7cbd6;
     font-weight: 500;
-    margin-bottom: 0.4rem;
   }
-
-  .input-value {
+  .stat-value {
     font-variant-numeric: tabular-nums;
-    color: var(--accent);
-    font-weight: 600;
-    font-size: 0.85rem;
+    font-feature-settings: "tnum","zero";
+    letter-spacing: -0.02em;
   }
-
-  .input-value .unit {
-    color: var(--text-dim);
-    font-weight: 400;
-    font-size: 0.75rem;
-    margin-left: 2px;
-  }
-
   input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    background: var(--surface2);
-    outline: none;
-    cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px;
+    background: linear-gradient(90deg, rgba(255,46,77,0.6) 0%, rgba(255,46,77,0.6) var(--pct,50%), rgba(255,255,255,0.08) var(--pct,50%), rgba(255,255,255,0.08) 100%);
+    border-radius: 999px; outline: none;
   }
-
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 2px solid var(--bg);
-    box-shadow: 0 0 8px var(--accent-glow);
-    cursor: pointer;
+    width: 18px; height: 18px; border-radius: 999px;
+    background: #fff;
+    border: 2px solid #ff2e4d;
+    box-shadow: 0 0 0 4px rgba(255,46,77,0.15), 0 2px 8px rgba(0,0,0,0.6);
+    cursor: grab; transition: transform 120ms ease;
   }
-
+  input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.08); cursor: grabbing; }
   input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 2px solid var(--bg);
-    box-shadow: 0 0 8px var(--accent-glow);
-    cursor: pointer;
+    width: 18px; height: 18px; border-radius: 999px;
+    background: #fff; border: 2px solid #ff2e4d;
+    box-shadow: 0 0 0 4px rgba(255,46,77,0.15);
+    cursor: grab;
   }
-
-  .input-direct {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.3rem;
-  }
-
-  .input-direct input[type="number"] {
-    width: 80px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    padding: 0.3rem 0.5rem;
-    font-size: 0.82rem;
-    font-family: inherit;
-    outline: none;
-  }
-
-  .input-direct input[type="number"]:focus {
-    border-color: var(--accent);
-  }
-
-  .input-direct .unit-label {
-    color: var(--text-dim);
-    font-size: 0.75rem;
-  }
-
-  /* Presets */
-  .presets {
-    margin-bottom: 1.25rem;
-  }
-
-  .preset-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-top: 0.35rem;
-  }
-
-  .preset-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text-dim);
-    font-size: 0.7rem;
-    padding: 0.25rem 0.55rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
-  }
-
-  .preset-btn:hover {
-    border-color: var(--accent);
-    color: var(--text);
-    background: var(--accent-glow);
-  }
-
-  /* Results */
-  .results-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .result-card {
-    background: var(--surface2);
-    border-radius: 8px;
-    padding: 0.85rem;
-  }
-
-  .result-card.wide {
-    grid-column: 1 / -1;
-  }
-
-  .result-label {
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.25rem;
-  }
-
-  .result-value {
-    font-size: 1.35rem;
-    font-weight: 700;
+  input[type="number"] {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #f1f3f8;
+    border-radius: 10px; padding: 8px 10px;
     font-variant-numeric: tabular-nums;
-  }
-
-  .result-sub {
-    font-size: 0.72rem;
-    color: var(--text-dim);
-    margin-top: 0.15rem;
-  }
-
-  .result-value .unit {
-    font-size: 0.7rem;
-    font-weight: 400;
-    color: var(--text-dim);
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.72rem;
-    font-weight: 600;
-  }
-
-  .badge-yes { background: rgba(74,222,128,0.15); color: var(--green); }
-  .badge-no { background: rgba(248,113,113,0.15); color: var(--red); }
-  .badge-info { background: rgba(108,140,255,0.15); color: var(--accent); }
-
-  /* Diagram */
-  .diagram-container {
-    margin-top: 1rem;
-  }
-
-  svg.diagram {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    transition: border-color 150ms ease, background 150ms ease;
     width: 100%;
-    height: auto;
   }
-
-  /* HAoV reference bar */
-  .haov-section {
-    margin-top: 1rem;
+  input[type="number"]:focus {
+    outline: none;
+    border-color: rgba(255,46,77,0.7);
+    background: rgba(255,46,77,0.06);
   }
-
-  .haov-bar-container {
-    position: relative;
-    height: 28px;
-    background: var(--surface2);
-    border-radius: 6px;
-    overflow: hidden;
-    margin: 0.75rem 0 0.5rem;
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+  .preset-btn {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.02em;
+    padding: 8px 10px; border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #c7cbd6;
+    transition: all 150ms ease;
+    text-align: left;
   }
-
-  .haov-fill {
-    height: 100%;
-    border-radius: 6px;
-    transition: width 0.3s;
+  .preset-btn:hover {
+    background: rgba(255,46,77,0.08);
+    border-color: rgba(255,46,77,0.35);
+    color: #fff;
   }
-
-  .haov-refs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.2rem 1rem;
-    font-size: 0.68rem;
-    color: var(--text-dim);
+  .preset-btn.active {
+    background: rgba(255,46,77,0.12);
+    border-color: rgba(255,46,77,0.6);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255,46,77,0.3);
   }
-
-  .haov-ref {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.1rem 0;
+  .unit-toggle { display: inline-flex; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 2px; }
+  .unit-toggle button {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    padding: 5px 12px; border-radius: 8px;
+    color: #8a93a6; transition: all 150ms ease;
   }
-
-  .haov-ref-val { color: var(--text); font-weight: 500; }
-
-  .haov-marker {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 1px;
-    opacity: 0.4;
+  .unit-toggle button.active { background: #fff; color: #0b0d12; }
+  .pill-good { background: rgba(163,230,53,0.12); border: 1px solid rgba(163,230,53,0.4); color: #a3e635; }
+  .pill-bad  { background: rgba(255,46,77,0.12); border: 1px solid rgba(255,46,77,0.45); color: #ff6b82; }
+  .pill-warn { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.4); color: #fbbf24; }
+  .tick { color: rgba(255,255,255,0.35); font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+  .zone-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+  .glow-accent { box-shadow: 0 0 30px rgba(255,46,77,0.18), inset 0 1px 0 rgba(255,255,255,0.06); }
+  .num-delta { transition: transform 250ms cubic-bezier(.2,.9,.3,1.2), color 250ms ease; }
+  .num-delta.bump { transform: translateY(-1px); color: #fff; }
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
-
-  /* 4K window bar */
-  .window-bar-container {
-    position: relative;
-    height: 20px;
-    background: var(--surface2);
-    border-radius: 4px;
-    margin: 0.5rem 0 0.25rem;
-    overflow: visible;
-  }
-
-  .window-bar-range {
-    position: absolute;
-    height: 100%;
-    border-radius: 4px;
-    background: rgba(74,222,128,0.2);
-    border: 1px solid rgba(74,222,128,0.4);
-  }
-
-  .window-bar-pos {
-    position: absolute;
-    top: -2px;
-    width: 3px;
-    height: 24px;
-    border-radius: 2px;
-    background: var(--accent);
-    transform: translateX(-50%);
-  }
-
-  .window-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.68rem;
-    color: var(--text-dim);
-  }
-
-  /* Side-view diagram */
-  .side-view {
-    margin-top: 1rem;
-    border-top: 1px solid var(--border);
-    padding-top: 1rem;
-  }
-
-  .side-view-title {
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.5rem;
-  }
+  .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #8a93a6; }
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); }
+  ::selection { background: rgba(255,46,77,0.4); color: #fff; }
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
 </style>
 </head>
-<body>
-<div class="app">
-  <h1>Screen Size &amp; Viewing Distance Calculator</h1>
-  <p class="subtitle">Model screen size, resolution, and viewing distance for any environment</p>
+<body class="min-h-screen">
 
-  <div class="grid">
-    <!-- LEFT: Inputs -->
-    <div>
-      <div class="panel">
-        <div class="panel-title">Inputs</div>
-
-        <div class="input-group">
-          <div class="input-label">
-            <span>Viewing Distance</span>
-            <span class="input-value"><span id="dist-val">39.4</span><span class="unit"> in</span> <span style="color:var(--text-dim);font-weight:400;font-size:0.75rem">(<span id="dist-ft">3.3</span> ft)</span></span>
-          </div>
-          <input type="range" id="dist-slider" min="12" max="240" step="0.1" value="39.4">
-          <div class="input-direct">
-            <input type="number" id="dist-input" value="39.4" min="6" max="600" step="0.1">
-            <span class="unit-label">inches</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <div class="input-label">
-            <span>Screen Diagonal</span>
-            <span class="input-value"><span id="diag-val">47.5</span><span class="unit"> in</span></span>
-          </div>
-          <input type="range" id="diag-slider" min="5" max="120" step="0.5" value="47.5">
-          <div class="input-direct">
-            <input type="number" id="diag-input" value="47.5" min="5" max="200" step="0.5">
-            <span class="unit-label">inches</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <div class="input-label">
-            <span>Horizontal Resolution</span>
-            <span class="input-value"><span id="hres-val">3840</span><span class="unit"> px</span></span>
-          </div>
-          <input type="range" id="hres-slider" min="640" max="7680" step="1" value="3840">
-          <div class="input-direct">
-            <input type="number" id="hres-input" value="3840" min="320" max="15360" step="1">
-            <span class="unit-label">px</span>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <div class="input-label">
-            <span>Vertical Resolution</span>
-            <span class="input-value"><span id="vres-val">2160</span><span class="unit"> px</span></span>
-          </div>
-          <input type="range" id="vres-slider" min="480" max="4320" step="1" value="2160">
-          <div class="input-direct">
-            <input type="number" id="vres-input" value="2160" min="240" max="8640" step="1">
-            <span class="unit-label">px</span>
-          </div>
-        </div>
+<!-- Header -->
+<header class="relative border-b hairline">
+  <div class="max-w-[1400px] mx-auto px-5 sm:px-8 py-5 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center relative"
+           style="background:linear-gradient(135deg,#ff2e4d,#7a0a1c);box-shadow:0 8px 30px rgba(255,46,77,.35),inset 0 1px 0 rgba(255,255,255,.25);">
+        <i data-lucide="monitor-play" class="w-5 h-5 text-white"></i>
       </div>
-
-      <div class="panel" style="margin-top:0.75rem;">
-        <div class="panel-title">Presets</div>
-
-        <div class="presets">
-          <div class="input-label"><span>Resolution</span></div>
-          <div class="preset-row">
-            <button class="preset-btn" onclick="setRes(1280,720)">720p</button>
-            <button class="preset-btn" onclick="setRes(1920,1080)">1080p</button>
-            <button class="preset-btn" onclick="setRes(2560,1440)">1440p</button>
-            <button class="preset-btn" onclick="setRes(3840,2160)">4K UHD</button>
-            <button class="preset-btn" onclick="setRes(5120,2880)">5K</button>
-            <button class="preset-btn" onclick="setRes(7680,4320)">8K</button>
-          </div>
-        </div>
-
-        <div class="presets">
-          <div class="input-label"><span>Ultrawide</span></div>
-          <div class="preset-row">
-            <button class="preset-btn" onclick="setRes(2560,1080)">UW 1080p</button>
-            <button class="preset-btn" onclick="setRes(3440,1440)">UW 1440p</button>
-            <button class="preset-btn" onclick="setRes(5120,2160)">UW 4K</button>
-          </div>
-        </div>
-
-        <div class="presets">
-          <div class="input-label"><span>Common Screens</span></div>
-          <div class="preset-row">
-            <button class="preset-btn" onclick="setScreen(27,2560,1440,24)">27" Monitor</button>
-            <button class="preset-btn" onclick="setScreen(32,3840,2160,30)">32" 4K Monitor</button>
-            <button class="preset-btn" onclick="setScreen(55,3840,2160,84)">55" 4K TV</button>
-            <button class="preset-btn" onclick="setScreen(65,3840,2160,96)">65" 4K TV</button>
-            <button class="preset-btn" onclick="setScreen(77,3840,2160,108)">77" 4K TV</button>
-            <button class="preset-btn" onclick="setScreen(85,3840,2160,120)">85" 4K TV</button>
-          </div>
-        </div>
+      <div class="leading-tight">
+        <div class="text-[11px] tracking-[0.18em] text-white/50 font-medium">DISPLAY ENGINEERING</div>
+        <h1 class="text-[17px] sm:text-[19px] font-semibold tracking-tight">Viewing Distance Lab</h1>
       </div>
     </div>
-
-    <!-- RIGHT: Results -->
-    <div>
-      <div class="panel">
-        <div class="panel-title">Calculated Results</div>
-
-        <div class="results-grid">
-          <div class="result-card">
-            <div class="result-label">Pixel Density</div>
-            <div class="result-value"><span id="r-ppi">93</span> <span class="unit">PPI</span></div>
-            <div class="result-sub" id="r-ppi-sub">pixels per inch</div>
-          </div>
-
-          <div class="result-card">
-            <div class="result-label">Angular Density</div>
-            <div class="result-value"><span id="r-ppd">64</span> <span class="unit">pp&deg;</span></div>
-            <div class="result-sub" id="r-ppd-sub">pixels per degree</div>
-          </div>
-
-          <div class="result-card">
-            <div class="result-label">Pixels Visible?</div>
-            <div class="result-value" id="r-visible">No</div>
-            <div class="result-sub" id="r-visible-sub">&gt;58 pp&deg; = Apple "Retina"</div>
-          </div>
-
-          <div class="result-card">
-            <div class="result-label">Min. Viewing Distance</div>
-            <div class="result-value"><span id="r-min-dist">37</span> <span class="unit">in</span></div>
-            <div class="result-sub" id="r-min-dist-sub">pixel visibility threshold</div>
-          </div>
-
-          <div class="result-card wide" id="r-4k-card">
-            <div class="result-label">4K Enhanced Viewing</div>
-            <div class="result-value" id="r-4k">TRUE</div>
-            <div class="result-sub" id="r-4k-sub">You can perceive detail beyond 1080p at this distance</div>
-            <div class="window-bar-container" id="window-bar-container">
-              <div class="window-bar-range" id="window-bar-range"></div>
-              <div class="window-bar-pos" id="window-bar-pos"></div>
-            </div>
-            <div class="window-labels">
-              <span id="window-lo-label">3.1 ft</span>
-              <span id="window-range-label" style="color:var(--text);font-weight:500;"></span>
-              <span id="window-hi-label">6.1 ft</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Horizontal Angle of View -->
-        <div class="haov-section">
-          <div class="result-card wide">
-            <div class="result-label">Horizontal Angle of View</div>
-            <div class="result-value"><span id="r-haov">56</span><span class="unit">&deg;</span></div>
-            <div class="result-sub" id="r-haov-sub"></div>
-            <div class="haov-bar-container" id="haov-bar-container">
-              <div class="haov-fill" id="haov-fill"></div>
-              <!-- reference markers -->
-            </div>
-            <div class="haov-refs" id="haov-refs"></div>
-          </div>
-        </div>
-
-        <div class="result-card wide" style="margin-top:0.75rem;">
-          <div class="result-label">Max HAoV at Pixel Visibility Threshold</div>
-          <div class="result-value"><span id="r-max-haov">64</span><span class="unit">&deg;</span></div>
-          <div class="result-sub" id="r-max-haov-sub">Maximum angle before pixels become visible</div>
-        </div>
-      </div>
-
-      <!-- Side-view diagram -->
-      <div class="panel" style="margin-top:0.75rem;">
-        <div class="panel-title">Viewing Geometry</div>
-        <div class="diagram-container">
-          <svg class="diagram" id="diagram-svg" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg"></svg>
-        </div>
-        <div style="display:flex;gap:1.5rem;margin-top:0.5rem;flex-wrap:wrap;">
-          <div style="font-size:0.68rem;color:var(--text-dim);display:flex;align-items:center;gap:0.35rem;">
-            <span style="display:inline-block;width:12px;height:3px;background:var(--accent);border-radius:1px;"></span> Screen
-          </div>
-          <div style="font-size:0.68rem;color:var(--text-dim);display:flex;align-items:center;gap:0.35rem;">
-            <span style="display:inline-block;width:12px;height:3px;background:var(--cyan);border-radius:1px;opacity:0.5;"></span> Viewing angle
-          </div>
-          <div style="font-size:0.68rem;color:var(--text-dim);display:flex;align-items:center;gap:0.35rem;">
-            <span style="display:inline-block;width:12px;height:3px;background:var(--green);border-radius:1px;opacity:0.5;"></span> 4K benefit zone
-          </div>
-        </div>
-      </div>
-
-      <!-- Screen dimensions -->
-      <div class="panel" style="margin-top:0.75rem;">
-        <div class="panel-title">Screen Dimensions</div>
-        <div class="results-grid">
-          <div class="result-card">
-            <div class="result-label">Width</div>
-            <div class="result-value"><span id="r-width">41.4</span> <span class="unit">in</span></div>
-            <div class="result-sub" id="r-width-cm"></div>
-          </div>
-          <div class="result-card">
-            <div class="result-label">Height</div>
-            <div class="result-value"><span id="r-height">23.3</span> <span class="unit">in</span></div>
-            <div class="result-sub" id="r-height-cm"></div>
-          </div>
-        </div>
-      </div>
+    <div class="hidden sm:flex items-center gap-2">
+      <span class="chip"><span class="w-1.5 h-1.5 rounded-full bg-accent"></span> LIVE</span>
+      <span class="chip mono">v1.0</span>
     </div>
   </div>
-</div>
+</header>
+
+<!-- Main -->
+<main class="max-w-[1400px] mx-auto px-5 sm:px-8 py-6 sm:py-10">
+
+  <!-- Intro -->
+  <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+    <div>
+      <div class="text-[11px] tracking-[0.16em] text-accent/90 font-semibold mb-2">SPATIAL & ANGULAR RESOLUTION</div>
+      <h2 class="text-2xl sm:text-4xl font-bold tracking-tight leading-[1.05]">
+        Model a display. <span class="text-white/50">See how it's perceived.</span>
+      </h2>
+      <p class="text-sm text-white/55 mt-2 max-w-xl">
+        Dial in screen size, resolution, and viewing distance — pixel density, angular resolution and the 4K enhanced viewing window update in real time.
+      </p>
+    </div>
+    <div class="unit-toggle" id="unitToggle" role="tablist" aria-label="Units">
+      <button data-unit="in" class="active">IMPERIAL</button>
+      <button data-unit="cm">METRIC</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-5 sm:gap-6">
+
+    <!-- ====== LEFT: INPUTS ====== -->
+    <section class="card p-5 sm:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="section-title">Inputs</div>
+        <button id="resetBtn" class="text-[11px] text-white/50 hover:text-white flex items-center gap-1">
+          <i data-lucide="rotate-ccw" class="w-3 h-3"></i> RESET
+        </button>
+      </div>
+
+      <!-- Viewing Distance -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-[12px] font-medium text-white/75">Viewing Distance</label>
+          <!-- Imperial: ft + in -->
+          <div class="flex items-center gap-1.5" id="distanceImperial">
+            <input type="number" id="distanceFt" step="1" min="0" class="!w-[56px] text-right">
+            <span class="text-[10px] text-white/50 mono">ft</span>
+            <input type="number" id="distanceIn" step="0.1" min="0" max="11.9" class="!w-[62px] text-right">
+            <span class="text-[10px] text-white/50 mono">in</span>
+          </div>
+          <!-- Metric: meters -->
+          <div class="flex items-center gap-2 hidden" id="distanceMetric">
+            <input type="number" id="distanceM" step="0.01" min="0" class="!w-[84px] text-right">
+            <span class="text-[11px] text-white/50 mono w-6">m</span>
+          </div>
+        </div>
+        <input type="range" id="distanceSlider" min="6" max="360" step="0.5" value="39.4">
+      </div>
+
+      <!-- Diagonal Size -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-[12px] font-medium text-white/75">Diagonal Screen Size</label>
+          <div class="flex items-center gap-2">
+            <input type="number" id="diagonal" step="0.1" min="1" class="!w-[84px] text-right">
+            <span class="text-[11px] text-white/50 mono w-6" id="diagonalUnit">in</span>
+          </div>
+        </div>
+        <input type="range" id="diagonalSlider" min="3" max="200" step="0.5" value="47.5">
+      </div>
+
+      <div class="divider my-5"></div>
+
+      <!-- Resolution -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-[12px] font-medium text-white/75">Resolution</label>
+          <span class="text-[10px] text-white/40 mono" id="aspectRatio">16:9</span>
+        </div>
+        <div class="grid grid-cols-[1fr_auto_1fr] gap-2 items-center">
+          <input type="number" id="hres" step="1" min="1" class="text-center">
+          <span class="text-white/30 text-sm">×</span>
+          <input type="number" id="vres" step="1" min="1" class="text-center">
+        </div>
+      </div>
+
+      <div class="divider my-5"></div>
+
+      <!-- Presets -->
+      <div>
+        <div class="section-title mb-3">Presets</div>
+        <div class="grid grid-cols-2 gap-2" id="presets"></div>
+      </div>
+    </section>
+
+    <!-- ====== RIGHT: DASHBOARD ====== -->
+    <section class="flex flex-col gap-5 sm:gap-6">
+
+      <!-- Stat Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+
+        <div class="card p-4 sm:p-5 relative overflow-hidden">
+          <div class="flex items-center gap-2 text-white/50 text-[10.5px] font-semibold tracking-[0.12em]">
+            <i data-lucide="grid-3x3" class="w-3.5 h-3.5"></i> SPATIAL DENSITY
+          </div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <span id="ppi" class="stat-value text-[34px] sm:text-[40px] font-bold num-delta">—</span>
+            <span class="text-white/40 text-xs font-medium mb-1">PPI</span>
+          </div>
+          <div class="text-[10.5px] text-white/40 mt-0.5 mono" id="ppiSub">pixels per inch</div>
+        </div>
+
+        <div class="card p-4 sm:p-5 relative overflow-hidden">
+          <div class="flex items-center gap-2 text-white/50 text-[10.5px] font-semibold tracking-[0.12em]">
+            <i data-lucide="radar" class="w-3.5 h-3.5"></i> ANGULAR
+          </div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <span id="ppd" class="stat-value text-[34px] sm:text-[40px] font-bold num-delta">—</span>
+            <span class="text-white/40 text-xs font-medium mb-1">pp°</span>
+          </div>
+          <div class="text-[10.5px] text-white/40 mt-0.5 mono">pixels per degree</div>
+        </div>
+
+        <div class="card p-4 sm:p-5 relative overflow-hidden">
+          <div class="flex items-center gap-2 text-white/50 text-[10.5px] font-semibold tracking-[0.12em]">
+            <i data-lucide="scan-eye" class="w-3.5 h-3.5"></i> HORIZ. AoV
+          </div>
+          <div class="mt-2 flex items-baseline">
+            <span id="haov" class="stat-value text-[34px] sm:text-[40px] font-bold num-delta">—</span>
+            <span class="stat-value text-[34px] sm:text-[40px] font-bold leading-none">°</span>
+          </div>
+          <div class="text-[10.5px] text-white/40 mt-0.5 mono" id="haovContext">horizontal field</div>
+        </div>
+
+        <div class="card p-4 sm:p-5 relative overflow-hidden">
+          <div class="flex items-center gap-2 text-white/50 text-[10.5px] font-semibold tracking-[0.12em]">
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i> RETINA
+          </div>
+          <div class="mt-3" id="retinaBadge">
+            <span class="chip pill-good"><i data-lucide="check" class="w-3 h-3"></i> PIXELS INVISIBLE</span>
+          </div>
+          <div class="text-[10.5px] text-white/40 mt-2 mono">threshold · 60 pp°</div>
+        </div>
+
+      </div>
+
+      <!-- Viewing Distance Zone Visualization -->
+      <div class="card p-5 sm:p-6 relative">
+        <div class="flex items-start justify-between mb-4 flex-wrap gap-2">
+          <div>
+            <div class="section-title">Viewing Distance Analysis</div>
+            <div class="mt-1 text-[13px] text-white/65">
+              You are <span id="zoneStatus" class="font-semibold text-white">—</span>
+            </div>
+          </div>
+          <div class="flex gap-2 text-[10px]">
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm" style="background:#ff2e4d"></span><span class="text-white/60">PIXELS VISIBLE</span></span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm" style="background:#22d3ee"></span><span class="text-white/60">4K ENHANCED</span></span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm" style="background:#3a4358"></span><span class="text-white/60">≈ 1080p</span></span>
+          </div>
+        </div>
+
+        <div class="relative h-[96px] sm:h-[112px]" id="zoneTrack">
+          <!-- zones injected by JS -->
+        </div>
+
+        <!-- readouts -->
+        <div class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div>
+            <div class="text-[10px] tracking-[0.12em] text-white/45 font-semibold">CURRENT</div>
+            <div class="stat-value text-lg font-semibold mt-0.5 mono" id="currentDist">—</div>
+          </div>
+          <div>
+            <div class="text-[10px] tracking-[0.12em] text-white/45 font-semibold">PIXEL VISIBILITY</div>
+            <div class="stat-value text-lg font-semibold mt-0.5 mono text-accent-soft" id="pvt">—</div>
+          </div>
+          <div>
+            <div class="text-[10px] tracking-[0.12em] text-white/45 font-semibold">4K ENHANCED WINDOW</div>
+            <div class="stat-value text-lg font-semibold mt-0.5 mono text-cyan2" id="enhancedWindow">—</div>
+          </div>
+          <div>
+            <div class="text-[10px] tracking-[0.12em] text-white/45 font-semibold">MAX HAoV @ PVT</div>
+            <div class="stat-value text-lg font-semibold mt-0.5 mono" id="maxHaov">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Geometry Diagram -->
+      <div class="card p-5 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="section-title">Geometry · Top-Down</div>
+          <div class="text-[10px] text-white/40 mono" id="geomLegend">— × — · — ft</div>
+        </div>
+        <div class="relative rounded-xl overflow-hidden grid-bg" style="background-color:#0a0c11;border:1px solid rgba(255,255,255,0.06);">
+          <svg id="geom" viewBox="0 0 800 360" class="w-full h-auto block" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+
+        <!-- HAoV reference table -->
+        <details class="mt-5 group">
+          <summary class="flex items-center gap-2 cursor-pointer text-[11px] tracking-[0.12em] text-white/50 font-semibold hover:text-white">
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 transition-transform group-open:rotate-90"></i>
+            HAoV INDUSTRY REFERENCE
+          </summary>
+          <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[12px]">
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">SMPTE NTSC recommendation</span><span class="mono text-white/80">10°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">THX theatrical minimum</span><span class="mono text-white/80">28°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">SMPTE HDTV recommendation</span><span class="mono text-white/80">30°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">THX home optimal</span><span class="mono text-white/80">40°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">IMAX theatrical minimum</span><span class="mono text-white/80">60°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">Cinerama Dome "best seats"</span><span class="mono text-white/80">68°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">IMAX theatrical maximum</span><span class="mono text-white/80">120°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">Human HAoV (avg. max)</span><span class="mono text-white/80">140°</span></div>
+          </div>
+        </details>
+      </div>
+
+    </section>
+  </div>
+
+  <footer class="mt-10 pt-6 border-t hairline flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-white/40">
+    <div>Math modeled from the <a href="https://docs.google.com/spreadsheets/d/1cSGM3vnrOeIMzNHTpL94-_5BJfUBF8_K-GG0ejWuUWM/edit?usp=sharing" target="_blank" rel="noopener" class="underline decoration-white/20 underline-offset-2 hover:text-white hover:decoration-accent transition-colors">original Display Viewing Distance spreadsheet</a>. Retina threshold: 60 pp° (≈ 20/20 vision).</div>
+    <div class="mono">Built by engineers who care about pixels.</div>
+  </footer>
+
+</main>
 
 <script>
-(function() {
-  // DOM refs
-  var distSlider = document.getElementById('dist-slider');
-  var diagSlider = document.getElementById('diag-slider');
-  var hresSlider = document.getElementById('hres-slider');
-  var vresSlider = document.getElementById('vres-slider');
-  var distInput  = document.getElementById('dist-input');
-  var diagInput  = document.getElementById('diag-input');
-  var hresInput  = document.getElementById('hres-input');
-  var vresInput  = document.getElementById('vres-input');
+(() => {
+  'use strict';
+  const DEG = 180 / Math.PI;
+  const RETINA_PPD = 60; // pp° threshold — matches spreadsheet
 
-  var DEG = Math.PI / 180;
-  var RETINA_THRESHOLD = 58; // pp° for Apple "Retina"
-  var ACUITY_PPD = 60;       // 1 arcminute = 60 pp° (20/20 vision threshold)
+  // ---------- State ----------
+  const state = {
+    distance: 39.4,   // always stored in inches
+    diagonal: 47.5,   // always stored in inches
+    hres: 3840,
+    vres: 2160,
+    unit: 'in',
+  };
 
-  var HAOV_REFS = [
-    { deg: 10,  label: 'SMPTE NTSC rec.' },
-    { deg: 28,  label: 'THX theatrical min.' },
-    { deg: 30,  label: 'SMPTE HDTV rec.' },
-    { deg: 40,  label: 'THX home optimal' },
-    { deg: 60,  label: 'IMAX theatrical min.' },
-    { deg: 68,  label: 'Cinerama Dome best seats' },
-    { deg: 120, label: 'IMAX theatrical max.' },
-    { deg: 140, label: 'Human max. HAoV' }
+  // ---------- Presets ----------
+  const PRESETS = [
+    { name: '4K Living Room',  sub: '55" UHD · 9ft',   distance: 108,  diagonal: 55,   hres: 3840, vres: 2160 },
+    { name: 'Cinema Studio',   sub: '47.5" · 3.3ft',   distance: 39.4, diagonal: 47.5, hres: 3840, vres: 2160 },
+    { name: 'Editor Reference',sub: '32" 4K · 2ft',    distance: 24,   diagonal: 32,   hres: 3840, vres: 2160 },
+    { name: 'iPhone 15 Pro',   sub: '6.1" · 12in',     distance: 12,   diagonal: 6.1,  hres: 2556, vres: 1179 },
+    { name: 'Desktop 1440p',   sub: '27" · 26in',      distance: 26,   diagonal: 27,   hres: 2560, vres: 1440 },
+    { name: 'Projector 8K',    sub: '150" · 15ft',     distance: 180,  diagonal: 150,  hres: 7680, vres: 4320 },
+    { name: 'HD Legacy',       sub: '42" 1080p · 8ft', distance: 96,   diagonal: 42,   hres: 1920, vres: 1080 },
+    { name: 'IMAX Front Row',  sub: '976" · 30ft',     distance: 360,  diagonal: 976,  hres: 4096, vres: 2160 },
   ];
 
-  function calc() {
-    var dist = parseFloat(distSlider.value);
-    var diag = parseFloat(diagSlider.value);
-    var hres = parseInt(hresSlider.value);
-    var vres = parseInt(vresSlider.value);
-
-    // Screen geometry (16:9-aware but works for any aspect)
-    var aspect = hres / vres;
-    var theta = Math.atan(1 / aspect);
-    var width = diag * Math.cos(theta);
-    var height = diag * Math.sin(theta);
-
-    // Pixel density
-    var ppi = hres / width;
-
-    // Angular density (pixels per degree)
-    var ppd = ppi * dist * DEG;
-
-    // Pixel visibility
-    var pixelsVisible = ppd < RETINA_THRESHOLD;
-
-    // Minimum viewing distance (where pixels become invisible at 1 arcmin acuity)
-    var minDist = ACUITY_PPD / (ppi * DEG);
-
-    // Horizontal angle of view
-    var haov = 2 * Math.atan(width / (2 * dist)) / DEG;
-
-    // Max HAoV at pixel visibility threshold
-    var maxHaov = 2 * Math.atan(width / (2 * minDist)) / DEG;
-
-    // 4K enhanced viewing (only meaningful for UHD+)
-    var isUHD = hres >= 3840 && vres >= 2160;
-    var halfHres = Math.round(hres / 2);
-    var halfVres = Math.round(vres / 2);
-    var ppiHalf = halfHres / width;
-    var minDistHalf = ACUITY_PPD / (ppiHalf * DEG);  // upper bound of 4K window
-    var fourKWindow = isUHD ? { lo: minDist, hi: minDistHalf } : null;
-    var fourKEnhanced = isUHD && dist >= minDist && dist <= minDistHalf;
-
-    // Update display
-    document.getElementById('dist-val').textContent = dist.toFixed(1);
-    document.getElementById('dist-ft').textContent = (dist / 12).toFixed(1);
-    document.getElementById('diag-val').textContent = diag.toFixed(1);
-    document.getElementById('hres-val').textContent = hres;
-    document.getElementById('vres-val').textContent = vres;
-
-    document.getElementById('r-ppi').textContent = Math.round(ppi);
-    document.getElementById('r-ppd').textContent = Math.round(ppd);
-
-    var visEl = document.getElementById('r-visible');
-    if (pixelsVisible) {
-      visEl.innerHTML = '<span class="badge badge-no">Yes — pixels visible</span>';
-    } else {
-      visEl.innerHTML = '<span class="badge badge-yes">No — "Retina" quality</span>';
-    }
-
-    document.getElementById('r-min-dist').textContent = Math.round(minDist);
-    document.getElementById('r-min-dist-sub').textContent =
-      (minDist / 12).toFixed(1) + ' ft — pixel visibility threshold';
-
-    // 4K section
-    var fourKCard = document.getElementById('r-4k-card');
-    if (isUHD) {
-      fourKCard.style.display = '';
-      var fourKEl = document.getElementById('r-4k');
-      if (fourKEnhanced) {
-        fourKEl.innerHTML = '<span class="badge badge-yes">YES</span>';
-        document.getElementById('r-4k-sub').textContent =
-          'You can perceive detail beyond ' + halfHres + '\u00d7' + halfVres + ' at this distance';
-      } else if (dist < minDist) {
-        fourKEl.innerHTML = '<span class="badge badge-yes">YES</span>';
-        document.getElementById('r-4k-sub').textContent =
-          'Closer than pixel threshold — individual pixels may be visible';
-      } else {
-        fourKEl.innerHTML = '<span class="badge badge-no">NO</span>';
-        document.getElementById('r-4k-sub').textContent =
-          'Too far to distinguish from ' + halfHres + '\u00d7' + halfVres;
-      }
-
-      // Window bar
-      var barW = document.getElementById('window-bar-container').clientWidth || 300;
-      var barMin = 0;
-      var barMax = Math.max(minDistHalf * 1.3, dist * 1.2);
-      var lo = fourKWindow.lo;
-      var hi = fourKWindow.hi;
-      var pctLo = ((lo - barMin) / (barMax - barMin)) * 100;
-      var pctHi = ((hi - barMin) / (barMax - barMin)) * 100;
-      var pctPos = ((dist - barMin) / (barMax - barMin)) * 100;
-
-      document.getElementById('window-bar-range').style.left = pctLo + '%';
-      document.getElementById('window-bar-range').style.width = (pctHi - pctLo) + '%';
-      document.getElementById('window-bar-pos').style.left = Math.min(Math.max(pctPos, 1), 99) + '%';
-      document.getElementById('window-lo-label').textContent = (lo / 12).toFixed(1) + ' ft';
-      document.getElementById('window-hi-label').textContent = (hi / 12).toFixed(1) + ' ft';
-      document.getElementById('window-range-label').textContent =
-        'You: ' + (dist / 12).toFixed(1) + ' ft';
-    } else {
-      fourKCard.style.display = 'none';
-    }
-
-    // HAoV
-    document.getElementById('r-haov').textContent = haov.toFixed(1);
-    var haovDesc = '';
-    for (var i = HAOV_REFS.length - 1; i >= 0; i--) {
-      if (haov >= HAOV_REFS[i].deg) {
-        haovDesc = 'Exceeds ' + HAOV_REFS[i].label + ' (' + HAOV_REFS[i].deg + '\u00b0)';
-        break;
-      }
-    }
-    if (!haovDesc && haov < HAOV_REFS[0].deg) {
-      haovDesc = 'Below ' + HAOV_REFS[0].label + ' (' + HAOV_REFS[0].deg + '\u00b0)';
-    }
-    document.getElementById('r-haov-sub').textContent = haovDesc;
-
-    // HAoV bar
-    var haovMax = 150;
-    var fillPct = Math.min((haov / haovMax) * 100, 100);
-    var fillEl = document.getElementById('haov-fill');
-    fillEl.style.width = fillPct + '%';
-    if (haov >= 60) {
-      fillEl.style.background = 'linear-gradient(90deg, var(--accent), var(--green))';
-    } else if (haov >= 30) {
-      fillEl.style.background = 'linear-gradient(90deg, var(--accent), var(--cyan))';
-    } else {
-      fillEl.style.background = 'var(--accent)';
-    }
-
-    // HAoV reference markers
-    var barContainer = document.getElementById('haov-bar-container');
-    barContainer.querySelectorAll('.haov-marker').forEach(function(m) { m.remove(); });
-    HAOV_REFS.forEach(function(ref) {
-      if (ref.deg <= haovMax) {
-        var marker = document.createElement('div');
-        marker.className = 'haov-marker';
-        marker.style.left = (ref.deg / haovMax * 100) + '%';
-        marker.style.background = ref.deg <= haov ? 'var(--green)' : 'var(--text-dim)';
-        barContainer.appendChild(marker);
-      }
-    });
-
-    // HAoV ref list
-    var refsHTML = '';
-    HAOV_REFS.forEach(function(ref) {
-      var active = haov >= ref.deg;
-      refsHTML += '<div class="haov-ref">' +
-        '<span style="' + (active ? 'color:var(--text)' : '') + '">' + ref.label + '</span>' +
-        '<span class="haov-ref-val" style="' + (active ? 'color:var(--green)' : '') + '">' +
-        ref.deg + '\u00b0</span></div>';
-    });
-    document.getElementById('haov-refs').innerHTML = refsHTML;
-
-    // Max HAoV
-    document.getElementById('r-max-haov').textContent = maxHaov.toFixed(1);
-
-    // Screen dimensions
-    document.getElementById('r-width').textContent = width.toFixed(1);
-    document.getElementById('r-width-cm').textContent = (width * 2.54).toFixed(1) + ' cm';
-    document.getElementById('r-height').textContent = height.toFixed(1);
-    document.getElementById('r-height-cm').textContent = (height * 2.54).toFixed(1) + ' cm';
-
-    // Draw diagram
-    drawDiagram(dist, width, height, haov, minDist, isUHD ? minDistHalf : null);
-  }
-
-  function drawDiagram(dist, screenW, screenH, haov, minDist, maxDistHalf) {
-    var svg = document.getElementById('diagram-svg');
-    var svgW = 600, svgH = 300;
-    var pad = 40;
-
-    // Scale so the scene fits
-    var maxPhysical = Math.max(dist, screenW / 2) * 1.15;
-    var scale = (svgW - pad * 2) / (maxPhysical + screenW / 2);
-    var scaleV = (svgH - pad * 2) / (Math.max(screenH, dist * Math.tan(haov * DEG / 2) * 2) * 0.6);
-    scale = Math.min(scale, scaleV, 4);
-
-    // Viewer at left, screen at right
-    var viewerX = pad + 20;
-    var viewerY = svgH / 2;
-    var screenX = viewerX + dist * scale;
-    var screenTopY = viewerY - (screenH / 2) * scale;
-    var screenBotY = viewerY + (screenH / 2) * scale;
-
-    // HAoV cone (horizontal, shown as top-down-ish)
-    var halfAngle = haov * DEG / 2;
-    var coneLen = dist * scale;
-    var coneHalfW = dist * Math.tan(halfAngle) * scale;
-
-    var html = '';
-
-    // 4K benefit zone (green region)
-    if (maxDistHalf !== null) {
-      var zoneStart = Math.max(minDist * scale, 0);
-      var zoneEnd = maxDistHalf * scale;
-      html += '<rect x="' + (viewerX + zoneStart) + '" y="' + (pad) +
-        '" width="' + (zoneEnd - zoneStart) + '" height="' + (svgH - pad * 2) +
-        '" fill="rgba(74,222,128,0.06)" rx="4"/>';
-      // labels
-      if (zoneEnd - zoneStart > 40) {
-        html += '<text x="' + (viewerX + (zoneStart + zoneEnd) / 2) + '" y="' + (svgH - pad + 16) +
-          '" text-anchor="middle" fill="#4ade80" font-size="9" opacity="0.7">4K benefit zone</text>';
-      }
-    }
-
-    // Viewing angle cone
-    html += '<polygon points="' +
-      viewerX + ',' + viewerY + ' ' +
-      (viewerX + coneLen) + ',' + (viewerY - coneHalfW) + ' ' +
-      (viewerX + coneLen) + ',' + (viewerY + coneHalfW) +
-      '" fill="rgba(34,211,238,0.07)" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>';
-
-    // Viewing distance line
-    html += '<line x1="' + viewerX + '" y1="' + (viewerY + coneHalfW + 20) +
-      '" x2="' + screenX + '" y2="' + (viewerY + coneHalfW + 20) +
-      '" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="4,3"/>';
-    html += '<text x="' + ((viewerX + screenX) / 2) + '" y="' + (viewerY + coneHalfW + 34) +
-      '" text-anchor="middle" fill="var(--text-dim)" font-size="10">' +
-      (dist).toFixed(1) + ' in (' + (dist / 12).toFixed(1) + ' ft)</text>';
-
-    // Screen (thick line)
-    html += '<line x1="' + screenX + '" y1="' + screenTopY +
-      '" x2="' + screenX + '" y2="' + screenBotY +
-      '" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>';
-
-    // Screen size label
-    html += '<text x="' + (screenX + 10) + '" y="' + (viewerY) +
-      '" fill="var(--accent)" font-size="10" dominant-baseline="middle">' +
-      parseFloat(diagSlider.value).toFixed(1) + '"</text>';
-
-    // Viewer (eye icon)
-    html += '<circle cx="' + viewerX + '" cy="' + viewerY +
-      '" r="6" fill="var(--surface2)" stroke="var(--cyan)" stroke-width="2"/>';
-    html += '<circle cx="' + viewerX + '" cy="' + viewerY +
-      '" r="2" fill="var(--cyan)"/>';
-
-    // Angle arc
-    var arcR = 30;
-    var ax1 = viewerX + arcR;
-    var ay1 = viewerY;
-    var ax2 = viewerX + arcR * Math.cos(halfAngle);
-    var ay2 = viewerY - arcR * Math.sin(halfAngle);
-    var largeArc = halfAngle > Math.PI / 2 ? 1 : 0;
-    html += '<path d="M' + ax1 + ',' + ay1 + ' A' + arcR + ',' + arcR + ' 0 ' +
-      largeArc + ' 0 ' + ax2 + ',' + ay2 + '" fill="none" stroke="var(--cyan)" stroke-width="1.5" opacity="0.6"/>';
-    html += '<text x="' + (viewerX + arcR + 8) + '" y="' + (viewerY - 6) +
-      '" fill="var(--cyan)" font-size="10" opacity="0.8">' + haov.toFixed(1) + '\u00b0</text>';
-
-    svg.innerHTML = html;
-  }
-
-  // Sync slider <-> input
-  function sync(slider, input, isInt) {
-    slider.addEventListener('input', function() {
-      input.value = slider.value;
-      calc();
-    });
-    input.addEventListener('input', function() {
-      var v = isInt ? parseInt(input.value) : parseFloat(input.value);
-      if (!isNaN(v)) {
-        if (v >= parseFloat(slider.min) && v <= parseFloat(slider.max)) {
-          slider.value = v;
-        }
-        calc();
-      }
-    });
-  }
-
-  sync(distSlider, distInput, false);
-  sync(diagSlider, diagInput, false);
-  sync(hresSlider, hresInput, true);
-  sync(vresSlider, vresInput, true);
-
-  // Presets
-  window.setRes = function(h, v) {
-    hresSlider.value = h; hresInput.value = h;
-    vresSlider.value = v; vresInput.value = v;
-    calc();
+  // ---------- Utility ----------
+  const gcd = (a, b) => b ? gcd(b, a % b) : a;
+  const fmtNum = (n, d = 0) => {
+    if (!isFinite(n)) return '—';
+    const f = Math.pow(10, d);
+    return (Math.round(n * f) / f).toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d });
+  };
+  const toDisplay = (inches) => state.unit === 'in' ? inches : inches * 2.54;
+  const fromDisplay = (v) => state.unit === 'in' ? v : v / 2.54;
+  const fmtLen = (inches, d = 1) => {
+    if (!isFinite(inches)) return '—';
+    return state.unit === 'in'
+      ? `${fmtNum(inches, d)} in`
+      : `${fmtNum(inches * 2.54, d)} cm`;
+  };
+  const fmtFeetOrM = (inches, d = 1) => {
+    if (!isFinite(inches)) return '—';
+    return state.unit === 'in'
+      ? `${fmtNum(inches / 12, d)} ft`
+      : `${fmtNum(inches * 0.0254, d)} m`;
   };
 
-  window.setScreen = function(diag, h, v, dist) {
-    diagSlider.value = diag; diagInput.value = diag;
-    hresSlider.value = h; hresInput.value = h;
-    vresSlider.value = v; vresInput.value = v;
-    distSlider.value = dist; distInput.value = dist;
-    calc();
+  // ---------- Core math (matches spreadsheet) ----------
+  function compute() {
+    const { distance, diagonal, hres, vres } = state;
+    const diagPx = Math.sqrt(hres * hres + vres * vres);
+    const ppi = diagonal > 0 ? diagPx / diagonal : 0;
+    const widthIn  = diagonal * (hres / diagPx);
+    const heightIn = diagonal * (vres / diagPx);
+
+    // Linear approximation (matches spreadsheet): HAoV° = width/distance * 180/π
+    const haov = distance > 0 ? (widthIn / distance) * DEG : 0;
+    const ppd  = distance > 0 ? (distance * ppi) / DEG : 0; // identical to hres / haov
+
+    // Pixel visibility threshold: distance where ppd == RETINA_PPD
+    const pvt = ppi > 0 ? (RETINA_PPD * DEG) / ppi : 0;
+    // Upper bound of 4K enhanced window = 2 × PVT (1080p equivalent density)
+    const upper4k = pvt * 2;
+
+    const isUhd = hres >= 3840;
+    const in4kWindow = isUhd && distance >= pvt && distance <= upper4k;
+    const pixelsVisible = ppd < RETINA_PPD;
+    const maxHaovAtPvt  = pvt > 0 ? (widthIn / pvt) * DEG : 0;
+
+    return { diagPx, ppi, widthIn, heightIn, haov, ppd, pvt, upper4k, isUhd, in4kWindow, pixelsVisible, maxHaovAtPvt };
+  }
+
+  // ---------- DOM refs ----------
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    distanceImperial: $('distanceImperial'), distanceMetric: $('distanceMetric'),
+    distanceFt: $('distanceFt'), distanceIn: $('distanceIn'), distanceM: $('distanceM'),
+    distanceSlider: $('distanceSlider'),
+    diagonal: $('diagonal'), diagonalSlider: $('diagonalSlider'), diagonalUnit: $('diagonalUnit'),
+    hres: $('hres'), vres: $('vres'), aspectRatio: $('aspectRatio'),
+    ppi: $('ppi'), ppiSub: $('ppiSub'), ppd: $('ppd'), haov: $('haov'), haovContext: $('haovContext'),
+    retinaBadge: $('retinaBadge'),
+    zoneTrack: $('zoneTrack'), zoneStatus: $('zoneStatus'),
+    currentDist: $('currentDist'), pvt: $('pvt'), enhancedWindow: $('enhancedWindow'), maxHaov: $('maxHaov'),
+    geom: $('geom'), geomLegend: $('geomLegend'),
+    presets: $('presets'), resetBtn: $('resetBtn'), unitToggle: $('unitToggle'),
   };
 
-  // Initial calc
-  calc();
+  // ---------- Render ----------
+  function bumpNum(el) {
+    el.classList.remove('bump');
+    // force reflow
+    void el.offsetWidth;
+    el.classList.add('bump');
+    setTimeout(() => el.classList.remove('bump'), 260);
+  }
+
+  function setText(el, text) {
+    if (el.textContent !== text) {
+      el.textContent = text;
+      bumpNum(el);
+    }
+  }
+
+  function updateSliderFill(input) {
+    const min = parseFloat(input.min), max = parseFloat(input.max), val = parseFloat(input.value);
+    const pct = ((val - min) / (max - min)) * 100;
+    input.style.setProperty('--pct', pct + '%');
+  }
+
+  function render() {
+    const r = compute();
+
+    // Distance input: imperial = ft + in, metric = m
+    if (state.unit === 'in') {
+      els.distanceImperial.classList.remove('hidden');
+      els.distanceImperial.classList.add('flex');
+      els.distanceMetric.classList.add('hidden');
+      const totalIn = state.distance;
+      const ft = Math.floor(totalIn / 12);
+      const inches = totalIn - ft * 12;
+      if (document.activeElement !== els.distanceFt) els.distanceFt.value = ft;
+      if (document.activeElement !== els.distanceIn) els.distanceIn.value = fmtNum(inches, 1);
+    } else {
+      els.distanceImperial.classList.add('hidden');
+      els.distanceMetric.classList.remove('hidden');
+      els.distanceMetric.classList.add('flex');
+      const meters = state.distance * 0.0254;
+      if (document.activeElement !== els.distanceM) els.distanceM.value = fmtNum(meters, 2);
+    }
+
+    // Diagonal: inches in imperial, cm in metric
+    const diagDisp = toDisplay(state.diagonal);
+    if (document.activeElement !== els.diagonal) els.diagonal.value = fmtNum(diagDisp, 1);
+    els.diagonalUnit.textContent = state.unit;
+
+    // Sliders always track the inch-based state values, but their min/max adjust per unit
+    if (state.unit === 'in') {
+      els.distanceSlider.min = 6;  els.distanceSlider.max = 360;
+      els.diagonalSlider.min = 3;  els.diagonalSlider.max = 200;
+    } else {
+      els.distanceSlider.min = 15;  els.distanceSlider.max = 915;  // cm
+      els.diagonalSlider.min = 8;   els.diagonalSlider.max = 508;
+    }
+    els.distanceSlider.value = toDisplay(state.distance);
+    els.diagonalSlider.value = diagDisp;
+    updateSliderFill(els.distanceSlider);
+    updateSliderFill(els.diagonalSlider);
+
+    if (document.activeElement !== els.hres) els.hres.value = state.hres;
+    if (document.activeElement !== els.vres) els.vres.value = state.vres;
+
+    // Aspect ratio
+    const g = gcd(state.hres, state.vres) || 1;
+    els.aspectRatio.textContent = `${state.hres / g}:${state.vres / g}`;
+
+    // Stat cards
+    setText(els.ppi, fmtNum(r.ppi, 0));
+    const ppiCm = r.ppi / 2.54;
+    els.ppiSub.textContent = state.unit === 'in'
+      ? `${fmtNum(r.ppi, 1)} pixels per inch`
+      : `${fmtNum(ppiCm, 1)} px/cm`;
+    setText(els.ppd, fmtNum(r.ppd, 0));
+    setText(els.haov, fmtNum(r.haov, 0));
+
+    // HAoV context label (match to closest reference)
+    const refs = [
+      [140, 'near human max'], [120, 'IMAX max'], [68, 'Cinerama front'], [60, 'IMAX minimum'],
+      [40, 'THX home optimal'], [30, 'SMPTE HDTV'], [28, 'THX theatrical'], [10, 'SMPTE NTSC'],
+    ];
+    let ctx = 'horizontal field';
+    for (const [deg, label] of refs) { if (r.haov >= deg - 2) { ctx = label; break; } }
+    els.haovContext.textContent = ctx;
+
+    // Retina badge
+    if (r.pixelsVisible) {
+      els.retinaBadge.innerHTML = `<span class="chip pill-bad"><i data-lucide="alert-triangle" class="w-3 h-3"></i> PIXELS VISIBLE</span>`;
+    } else {
+      els.retinaBadge.innerHTML = `<span class="chip pill-good"><i data-lucide="check" class="w-3 h-3"></i> RETINA GRADE</span>`;
+    }
+    if (window.lucide) window.lucide.createIcons();
+
+    // Zone track
+    drawZoneTrack(r);
+
+    // Readouts
+    els.currentDist.textContent = `${fmtLen(state.distance, 1)} · ${fmtFeetOrM(state.distance, 1)}`;
+    els.pvt.textContent = `${fmtLen(r.pvt, 1)} · ${fmtFeetOrM(r.pvt, 1)}`;
+    if (r.isUhd) {
+      els.enhancedWindow.textContent = `${fmtFeetOrM(r.pvt, 1)} – ${fmtFeetOrM(r.upper4k, 1)}`;
+      els.enhancedWindow.classList.remove('text-white/30');
+    } else {
+      els.enhancedWindow.textContent = 'N/A (sub-UHD)';
+      els.enhancedWindow.classList.add('text-white/30');
+    }
+    els.maxHaov.textContent = `${fmtNum(r.maxHaovAtPvt, 0)}°`;
+
+    // Zone status phrase
+    let phrase;
+    if (r.pixelsVisible) {
+      phrase = `<span style="color:#ff6b82;font-weight:600">too close</span> — individual pixels are resolvable`;
+    } else if (r.isUhd && r.in4kWindow) {
+      phrase = `<span style="color:#22d3ee;font-weight:600">in the 4K enhanced window</span> — UHD clearly outperforms HD here`;
+    } else if (r.isUhd && state.distance > r.upper4k) {
+      phrase = `<span style="color:rgba(255,255,255,0.7);font-weight:600">beyond 4K benefit</span> — indistinguishable from 1080p at this distance`;
+    } else {
+      phrase = `<span style="color:#a3e635;font-weight:600">comfortably retina</span> — pixels are invisible`;
+    }
+    els.zoneStatus.innerHTML = phrase;
+
+    // Geometry diagram
+    drawGeometry(r);
+    els.geomLegend.textContent = `${fmtLen(r.widthIn,1)} × ${fmtLen(r.heightIn,1)} · ${fmtFeetOrM(state.distance,1)} viewing`;
+
+    // Update preset highlighting
+    [...els.presets.children].forEach((btn, i) => {
+      const p = PRESETS[i];
+      const match = Math.abs(p.distance - state.distance) < 0.2 && Math.abs(p.diagonal - state.diagonal) < 0.2 && p.hres === state.hres && p.vres === state.vres;
+      btn.classList.toggle('active', match);
+    });
+  }
+
+  // ---------- Zone Track ----------
+  function drawZoneTrack(r) {
+    const track = els.zoneTrack;
+    // Scale: show from 0 up to max(current*1.25, upper4k*1.2, pvt*2.5)
+    const upperForScale = Math.max(state.distance * 1.25, r.upper4k * 1.25, r.pvt * 2.6, 12);
+    const maxShow = upperForScale;
+    const pctOf = (v) => Math.max(0, Math.min(100, (v / maxShow) * 100));
+
+    const pvtPct = pctOf(r.pvt);
+    const upperPct = pctOf(r.upper4k);
+    const currentPct = pctOf(state.distance);
+
+    // Build ticks
+    const niceStep = (() => {
+      const raw = maxShow / 6;
+      const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+      const n = raw / pow;
+      const mult = n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10;
+      return mult * pow;
+    })();
+    const ticks = [];
+    for (let v = 0; v <= maxShow; v += niceStep) ticks.push(v);
+
+    const tickHtml = ticks.map(v => {
+      const left = pctOf(v);
+      return `<div class="absolute top-[42px] -translate-x-1/2 tick" style="left:${left}%">
+                <div class="w-px h-2 bg-white/15 mx-auto mb-1"></div>
+                ${fmtFeetOrM(v, v >= 12 ? 0 : 1)}
+              </div>`;
+    }).join('');
+
+    const barTop = 14;
+    const barH = 28;
+
+    const redZone = `<div class="absolute rounded-l-md" style="left:0%;width:${pvtPct}%;top:${barTop}px;height:${barH}px;background:linear-gradient(180deg,rgba(255,46,77,0.45),rgba(255,46,77,0.15));border:1px solid rgba(255,46,77,0.5);border-right:none;"></div>`;
+    const cyanZone = r.isUhd
+      ? `<div class="absolute" style="left:${pvtPct}%;width:${Math.max(0.1, upperPct - pvtPct)}%;top:${barTop}px;height:${barH}px;background:linear-gradient(180deg,rgba(34,211,238,0.35),rgba(34,211,238,0.1));border-top:1px solid rgba(34,211,238,0.5);border-bottom:1px solid rgba(34,211,238,0.5);"></div>`
+      : '';
+    const grayZone = `<div class="absolute rounded-r-md" style="left:${r.isUhd ? upperPct : pvtPct}%;right:0;top:${barTop}px;height:${barH}px;background:linear-gradient(180deg,rgba(58,67,88,0.5),rgba(58,67,88,0.2));border:1px solid rgba(255,255,255,0.07);border-left:none;"></div>`;
+
+    // Marker
+    const markerColor = r.pixelsVisible ? '#ff2e4d' : (r.isUhd && r.in4kWindow ? '#22d3ee' : '#a3e635');
+    const markerHtml = `
+      <div class="absolute" style="left:${currentPct}%;top:0;bottom:28px;transform:translateX(-50%);">
+        <div class="h-full w-px" style="background:linear-gradient(180deg,${markerColor},transparent);"></div>
+        <div class="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full" style="background:#fff;border:2px solid ${markerColor};box-shadow:0 0 0 4px rgba(255,255,255,0.06),0 0 18px ${markerColor};"></div>
+        <div class="absolute top-4 left-1/2 -translate-x-1/2 whitespace-nowrap mono text-[10px] font-semibold" style="color:${markerColor}">${fmtFeetOrM(state.distance, 1)}</div>
+      </div>`;
+
+    // Zone labels
+    const zoneLabelHtml = `
+      ${pvtPct > 10 ? `<div class="absolute zone-label text-accent-soft/80" style="left:${pvtPct/2}%;transform:translateX(-50%);top:${barTop + barH + 2}px;">PIXELATED</div>` : ''}
+      ${r.isUhd && (upperPct - pvtPct) > 12 ? `<div class="absolute zone-label text-cyan2/80" style="left:${(pvtPct+upperPct)/2}%;transform:translateX(-50%);top:${barTop + barH + 2}px;">4K ZONE</div>` : ''}
+    `;
+
+    track.innerHTML = redZone + cyanZone + grayZone + markerHtml + zoneLabelHtml + tickHtml;
+  }
+
+  // ---------- Geometry Diagram (top-down) ----------
+  function drawGeometry(r) {
+    const svg = els.geom;
+    const W = 800, H = 360;
+    // Scene scale: fit widthIn and distance into viewport with padding
+    const padX = 60, padY = 50;
+    const availW = W - padX * 2;
+    const availH = H - padY * 2;
+
+    const sceneW = Math.max(r.widthIn, 1);
+    const sceneD = Math.max(state.distance, 1);
+    const scale = Math.min(availW / sceneW, availH / sceneD);
+
+    const screenPx = sceneW * scale;
+    const distPx = sceneD * scale;
+
+    const cx = W / 2;
+    const screenY = padY;
+    const eyeY = screenY + distPx;
+
+    const sx1 = cx - screenPx / 2;
+    const sx2 = cx + screenPx / 2;
+
+    // Clamp eye if it overflows
+    const eyeYClamped = Math.min(eyeY, H - 30);
+
+    const markerColor = r.pixelsVisible ? '#ff2e4d' : (r.isUhd && r.in4kWindow ? '#22d3ee' : '#a3e635');
+
+    // HAoV fan
+    const fanPath = `M ${cx} ${eyeYClamped} L ${sx1} ${screenY} L ${sx2} ${screenY} Z`;
+
+    // distance ruler
+    const rulerX = sx2 + 22;
+
+    svg.innerHTML = `
+      <defs>
+        <linearGradient id="screenGrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+          <stop offset="1" stop-color="#cbd5e1" stop-opacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="fanGrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="${markerColor}" stop-opacity="0.05"/>
+          <stop offset="1" stop-color="${markerColor}" stop-opacity="0.22"/>
+        </linearGradient>
+        <pattern id="stripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+        </pattern>
+      </defs>
+
+      <!-- HAoV fan -->
+      <path d="${fanPath}" fill="url(#fanGrad)" stroke="${markerColor}" stroke-width="1.2" stroke-dasharray="3 4" opacity="0.9"/>
+
+      <!-- Screen -->
+      <line x1="${sx1}" y1="${screenY}" x2="${sx2}" y2="${screenY}" stroke="url(#screenGrad)" stroke-width="6" stroke-linecap="round"/>
+      <line x1="${sx1 - 6}" y1="${screenY - 4}" x2="${sx1 - 6}" y2="${screenY + 4}" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+      <line x1="${sx2 + 6}" y1="${screenY - 4}" x2="${sx2 + 6}" y2="${screenY + 4}" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+
+      <!-- Screen width label -->
+      <line x1="${sx1}" y1="${screenY - 18}" x2="${sx2}" y2="${screenY - 18}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <line x1="${sx1}" y1="${screenY - 22}" x2="${sx1}" y2="${screenY - 14}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <line x1="${sx2}" y1="${screenY - 22}" x2="${sx2}" y2="${screenY - 14}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <text x="${cx}" y="${screenY - 26}" text-anchor="middle" fill="#e6e8ef" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600">${fmtLen(r.widthIn, 1)}</text>
+      <text x="${cx}" y="${screenY - 42}" text-anchor="middle" fill="#8a93a6" font-size="10" font-family="Inter" letter-spacing="1.2" font-weight="600">SCREEN</text>
+
+      <!-- Distance ruler -->
+      <line x1="${rulerX}" y1="${screenY}" x2="${rulerX}" y2="${eyeYClamped}" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+      <line x1="${rulerX - 4}" y1="${screenY}" x2="${rulerX + 4}" y2="${screenY}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <line x1="${rulerX - 4}" y1="${eyeYClamped}" x2="${rulerX + 4}" y2="${eyeYClamped}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <text x="${rulerX + 8}" y="${(screenY + eyeYClamped) / 2 + 4}" fill="#e6e8ef" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600">${fmtFeetOrM(state.distance, 1)}</text>
+      <text x="${rulerX + 8}" y="${(screenY + eyeYClamped) / 2 + 20}" fill="#8a93a6" font-family="JetBrains Mono, monospace" font-size="10">${fmtLen(state.distance, 1)}</text>
+
+      <!-- HAoV angle arc -->
+      ${(() => {
+        const arcR = Math.min(42, distPx * 0.35);
+        const halfAngle = r.haov / 2;
+        const a1 = (90 - halfAngle) * Math.PI / 180;
+        const a2 = (90 + halfAngle) * Math.PI / 180;
+        const ax1 = cx - Math.cos(a1) * arcR; // not used directly
+        // Arc points — we want arc centered at eye, sweeping from left line to right line, radius arcR
+        const p1x = cx - Math.sin(halfAngle * Math.PI / 180) * arcR;
+        const p1y = eyeYClamped - Math.cos(halfAngle * Math.PI / 180) * arcR;
+        const p2x = cx + Math.sin(halfAngle * Math.PI / 180) * arcR;
+        const p2y = eyeYClamped - Math.cos(halfAngle * Math.PI / 180) * arcR;
+        const large = r.haov > 180 ? 1 : 0;
+        return `<path d="M ${p1x} ${p1y} A ${arcR} ${arcR} 0 ${large} 1 ${p2x} ${p2y}" fill="none" stroke="${markerColor}" stroke-width="1.5"/>
+                <text x="${cx}" y="${eyeYClamped - arcR - 6}" text-anchor="middle" fill="${markerColor}" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700">${fmtNum(r.haov, 0)}°</text>`;
+      })()}
+
+      <!-- Eye / viewer -->
+      <circle cx="${cx}" cy="${eyeYClamped}" r="10" fill="#0a0c11" stroke="${markerColor}" stroke-width="2"/>
+      <circle cx="${cx}" cy="${eyeYClamped}" r="3" fill="${markerColor}"/>
+      <text x="${cx}" y="${eyeYClamped + 26}" text-anchor="middle" fill="#8a93a6" font-size="10" font-family="Inter" letter-spacing="1.2" font-weight="600">VIEWER</text>
+    `;
+  }
+
+  // ---------- Events ----------
+  function bindInputs() {
+    // Distance — imperial (ft + in)
+    const updateFromImperial = () => {
+      const ft = parseFloat(els.distanceFt.value) || 0;
+      const inch = parseFloat(els.distanceIn.value) || 0;
+      const total = ft * 12 + inch;
+      if (total > 0) { state.distance = total; render(); }
+    };
+    els.distanceFt.addEventListener('input', updateFromImperial);
+    els.distanceIn.addEventListener('input', updateFromImperial);
+    // Distance — metric (meters)
+    els.distanceM.addEventListener('input', () => {
+      const m = parseFloat(els.distanceM.value);
+      if (isFinite(m) && m > 0) { state.distance = m / 0.0254; render(); }
+    });
+    // Distance — slider
+    els.distanceSlider.addEventListener('input', () => {
+      state.distance = fromDisplay(parseFloat(els.distanceSlider.value));
+      render();
+    });
+    // Diagonal
+    els.diagonal.addEventListener('input', () => {
+      const v = parseFloat(els.diagonal.value);
+      if (isFinite(v) && v > 0) { state.diagonal = fromDisplay(v); render(); }
+    });
+    els.diagonalSlider.addEventListener('input', () => {
+      state.diagonal = fromDisplay(parseFloat(els.diagonalSlider.value));
+      render();
+    });
+    // Resolution
+    els.hres.addEventListener('input', () => {
+      const v = parseInt(els.hres.value, 10);
+      if (isFinite(v) && v > 0) { state.hres = v; render(); }
+    });
+    els.vres.addEventListener('input', () => {
+      const v = parseInt(els.vres.value, 10);
+      if (isFinite(v) && v > 0) { state.vres = v; render(); }
+    });
+  }
+
+  function buildPresets() {
+    els.presets.innerHTML = '';
+    PRESETS.forEach((p) => {
+      const btn = document.createElement('button');
+      btn.className = 'preset-btn';
+      btn.innerHTML = `<div class="text-white/90 font-semibold">${p.name}</div>
+                       <div class="text-white/40 text-[10px] mt-0.5 mono">${p.sub}</div>`;
+      btn.addEventListener('click', () => {
+        state.distance = p.distance;
+        state.diagonal = p.diagonal;
+        state.hres = p.hres;
+        state.vres = p.vres;
+        render();
+      });
+      els.presets.appendChild(btn);
+    });
+  }
+
+  function bindUnitToggle() {
+    els.unitToggle.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.unit = btn.dataset.unit;
+        els.unitToggle.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+        render();
+      });
+    });
+  }
+
+  function bindReset() {
+    els.resetBtn.addEventListener('click', () => {
+      Object.assign(state, { distance: 39.4, diagonal: 47.5, hres: 3840, vres: 2160 });
+      render();
+    });
+  }
+
+  // ---------- Init ----------
+  function init() {
+    buildPresets();
+    bindInputs();
+    bindUnitToggle();
+    bindReset();
+    render();
+    if (window.lucide) window.lucide.createIcons();
+    window.addEventListener('resize', () => render());
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
 </script>
 </body>
