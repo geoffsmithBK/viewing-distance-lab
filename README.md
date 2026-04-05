@@ -1,4 +1,4 @@
-# Screen Size & Viewing Distance Calculator
+# Viewing Distance Lab: A Screen Size & Viewing Distance Calculator
 
 An interactive tool for modeling the relationship between screen size, resolution, and viewing distance. Figure out whether your screen is "Retina" quality at your seating position, whether you'd benefit from 4K over 1080p, and how your viewing angle compares to cinema standards.
 
