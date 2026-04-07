@@ -237,7 +237,7 @@
             <span class="text-[11px] text-white/50 mono w-6">m</span>
           </div>
         </div>
-        <input type="range" id="distanceSlider" min="6" max="360" step="0.5" value="39.4">
+        <input type="range" id="distanceSlider" min="6" max="360" step="0.5" value="60">
       </div>
 
       <!-- Diagonal Size -->
@@ -249,7 +249,7 @@
             <span class="text-[11px] text-white/50 mono w-6" id="diagonalUnit">in</span>
           </div>
         </div>
-        <input type="range" id="diagonalSlider" min="3" max="200" step="0.5" value="47.5">
+        <input type="range" id="diagonalSlider" min="3" max="200" step="0.5" value="55">
       </div>
 
       <div class="divider my-5"></div>
@@ -273,6 +273,11 @@
       <div>
         <div class="section-title mb-3">Presets</div>
         <div class="grid grid-cols-2 gap-2" id="presets"></div>
+      </div>
+
+      <div class="mt-5 text-[11px] text-white/40 leading-relaxed">
+        <p><strong>Note:</strong> viewing angle, and viewing angle alone, determines the size of an image on a human retina</p>
+        <p class="mt-1"><sup>*</sup>PVT = Pixel Visibility Threshold</p>
       </div>
     </section>
 
@@ -299,7 +304,7 @@
           </div>
           <div class="mt-2 flex items-baseline gap-1">
             <span id="ppd" class="stat-value text-[34px] sm:text-[40px] font-bold num-delta">—</span>
-            <span class="text-white/40 text-xs font-medium mb-1">pp°</span>
+            <span class="text-white/40 text-xs font-medium mb-1">ppd</span>
           </div>
           <div class="text-[10.5px] text-white/40 mt-0.5 mono">pixels per degree</div>
         </div>
@@ -322,7 +327,7 @@
           <div class="mt-3" id="retinaBadge">
             <span class="chip pill-good"><i data-lucide="check" class="w-3 h-3"></i> PIXELS INVISIBLE</span>
           </div>
-          <div class="text-[10.5px] text-white/40 mt-2 mono">threshold · 60 pp°</div>
+          <div class="text-[10.5px] text-white/40 mt-2 mono">threshold · 60 ppd</div>
         </div>
 
       </div>
@@ -362,7 +367,7 @@
             <div class="stat-value text-lg font-semibold mt-0.5 mono text-cyan2" id="enhancedWindow">—</div>
           </div>
           <div>
-            <div class="text-[10px] tracking-[0.12em] text-white/45 font-semibold">MAX HAoV @ PVT</div>
+            <div class="text-[10px] tracking-[0.12em] text-white/45 font-semibold">MAX HAoV @ PVT<sup>*</sup></div>
             <div class="stat-value text-lg font-semibold mt-0.5 mono" id="maxHaov">—</div>
           </div>
         </div>
@@ -379,7 +384,7 @@
         </div>
 
         <!-- HAoV reference table -->
-        <details class="mt-5 group">
+        <details class="mt-5 group" open>
           <summary class="flex items-center gap-2 cursor-pointer text-[11px] tracking-[0.12em] text-white/50 font-semibold hover:text-white">
             <i data-lucide="chevron-right" class="w-3.5 h-3.5 transition-transform group-open:rotate-90"></i>
             HAoV INDUSTRY REFERENCE
@@ -389,9 +394,9 @@
             <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">THX theatrical minimum</span><span class="mono text-white/80">28°</span></div>
             <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">SMPTE HDTV recommendation</span><span class="mono text-white/80">30°</span></div>
             <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">THX home optimal</span><span class="mono text-white/80">40°</span></div>
-            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">IMAX theatrical minimum</span><span class="mono text-white/80">60°</span></div>
-            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">Cinerama Dome "best seats"</span><span class="mono text-white/80">68°</span></div>
-            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">IMAX theatrical maximum</span><span class="mono text-white/80">120°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55"><a href="./pdf/imax.pdf" target="_blank" rel="noopener" class="text-accent-soft underline decoration-accent-soft/40 underline-offset-2 hover:text-white hover:decoration-accent transition-colors">IMAX theatrical minimum</a></span><span class="mono text-white/80">60°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">Cinerama Dome "<a href="https://x.com/steveyedlin/status/802679109201428480?s=20" target="_blank" rel="noopener" class="text-accent-soft underline decoration-accent-soft/40 underline-offset-2 hover:text-white hover:decoration-accent transition-colors">best seats</a>"</span><span class="mono text-white/80">68°</span></div>
+            <div class="flex justify-between border-b hairline py-1"><span class="text-white/55"><a href="./pdf/imax.pdf" target="_blank" rel="noopener" class="text-accent-soft underline decoration-accent-soft/40 underline-offset-2 hover:text-white hover:decoration-accent transition-colors">IMAX theatrical maximum</a></span><span class="mono text-white/80">120°</span></div>
             <div class="flex justify-between border-b hairline py-1"><span class="text-white/55">Human HAoV (avg. max)</span><span class="mono text-white/80">140°</span></div>
           </div>
         </details>
@@ -401,7 +406,7 @@
   </div>
 
   <footer class="mt-10 pt-6 border-t hairline flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-white/40">
-    <div>Math modeled from the <a href="https://docs.google.com/spreadsheets/d/1cSGM3vnrOeIMzNHTpL94-_5BJfUBF8_K-GG0ejWuUWM/edit?usp=sharing" target="_blank" rel="noopener" class="underline decoration-white/20 underline-offset-2 hover:text-white hover:decoration-accent transition-colors">original Display Viewing Distance spreadsheet</a>. Retina threshold: 60 pp° (≈ 20/20 vision).</div>
+    <div>Math modeled from the <a href="https://docs.google.com/spreadsheets/d/1cSGM3vnrOeIMzNHTpL94-_5BJfUBF8_K-GG0ejWuUWM/edit?usp=sharing" target="_blank" rel="noopener" class="underline decoration-white/20 underline-offset-2 hover:text-white hover:decoration-accent transition-colors">original Display Viewing Distance spreadsheet</a>. Retina threshold: 60 ppd (≈ 20/20 vision).</div>
     <div class="mono">Built by engineers who care about pixels.</div>
   </footer>
 
@@ -411,12 +416,12 @@
 (() => {
   'use strict';
   const DEG = 180 / Math.PI;
-  const RETINA_PPD = 60; // pp° threshold — matches spreadsheet
+  const RETINA_PPD = 60; // ppd threshold — matches spreadsheet
 
   // ---------- State ----------
   const state = {
-    distance: 39.4,   // always stored in inches
-    diagonal: 47.5,   // always stored in inches
+    distance: 60,     // always stored in inches
+    diagonal: 55,     // always stored in inches
     hres: 3840,
     vres: 2160,
     unit: 'in',
@@ -424,14 +429,10 @@
 
   // ---------- Presets ----------
   const PRESETS = [
-    { name: '4K Living Room',  sub: '55" UHD · 9ft',   distance: 108,  diagonal: 55,   hres: 3840, vres: 2160 },
-    { name: 'Cinema Studio',   sub: '47.5" · 3.3ft',   distance: 39.4, diagonal: 47.5, hres: 3840, vres: 2160 },
-    { name: 'Editor Reference',sub: '32" 4K · 2ft',    distance: 24,   diagonal: 32,   hres: 3840, vres: 2160 },
-    { name: 'iPhone 15 Pro',   sub: '6.1" · 12in',     distance: 12,   diagonal: 6.1,  hres: 2556, vres: 1179 },
-    { name: 'Desktop 1440p',   sub: '27" · 26in',      distance: 26,   diagonal: 27,   hres: 2560, vres: 1440 },
-    { name: 'Projector 8K',    sub: '150" · 15ft',     distance: 180,  diagonal: 150,  hres: 7680, vres: 4320 },
-    { name: 'HD Legacy',       sub: '42" 1080p · 8ft', distance: 96,   diagonal: 42,   hres: 1920, vres: 1080 },
-    { name: 'IMAX Front Row',  sub: '976" · 30ft',     distance: 360,  diagonal: 976,  hres: 4096, vres: 2160 },
+    { name: '4K NYC Apartment', sub: '55" UHD · 5ft',   distance: 60,   diagonal: 55,   hres: 3840, vres: 2160 },
+    { name: 'Colorist Reference',sub: '32" 4K · 2.5ft', distance: 30,  diagonal: 32,   hres: 3840, vres: 2160 },
+    { name: '1440p Desktop',   sub: '27" · 3.5ft',     distance: 42,   diagonal: 27,   hres: 2560, vres: 1440 },
+    { name: 'HD (grandparents)', sub: '48" 1080p · 12.5ft', distance: 150, diagonal: 48, hres: 1920, vres: 1080 },
   ];
 
   // ---------- Utility ----------
@@ -586,8 +587,10 @@
     // Retina badge
     if (r.pixelsVisible) {
       els.retinaBadge.innerHTML = `<span class="chip pill-bad"><i data-lucide="alert-triangle" class="w-3 h-3"></i> PIXELS VISIBLE</span>`;
+    } else if (!r.isUhd) {
+      els.retinaBadge.innerHTML = `<a href="https://en.wikipedia.org/wiki/Retina_display" target="_blank" rel="noopener"><span class="chip pill-warn"><i data-lucide="check" class="w-3 h-3"></i> RETINA-ISH</span></a>`;
     } else {
-      els.retinaBadge.innerHTML = `<span class="chip pill-good"><i data-lucide="check" class="w-3 h-3"></i> RETINA GRADE</span>`;
+      els.retinaBadge.innerHTML = `<a href="https://en.wikipedia.org/wiki/Retina_display" target="_blank" rel="noopener"><span class="chip pill-good"><i data-lucide="check" class="w-3 h-3"></i> RETINA GRADE</span></a>`;
     }
     if (window.lucide) window.lucide.createIcons();
 
@@ -614,6 +617,8 @@
       phrase = `<span style="color:#22d3ee;font-weight:600">in the 4K enhanced window</span> — UHD clearly outperforms HD here`;
     } else if (r.isUhd && state.distance > r.upper4k) {
       phrase = `<span style="color:rgba(255,255,255,0.7);font-weight:600">beyond 4K benefit</span> — indistinguishable from 1080p at this distance`;
+    } else if (!r.isUhd) {
+      phrase = `<span style="color:#fbbf24;font-weight:600">retina-ish</span> — motion content looks clean, but text and hard edges may appear aliased`;
     } else {
       phrase = `<span style="color:#a3e635;font-weight:600">comfortably retina</span> — pixels are invisible`;
     }
@@ -674,10 +679,10 @@
     // Marker
     const markerColor = r.pixelsVisible ? '#ff2e4d' : (r.isUhd && r.in4kWindow ? '#22d3ee' : '#a3e635');
     const markerHtml = `
-      <div class="absolute" style="left:${currentPct}%;top:0;bottom:28px;transform:translateX(-50%);">
+      <div class="absolute" style="left:${currentPct}%;top:0;bottom:28px;transform:translateX(-50%);cursor:grab;" id="zoneMarker">
         <div class="h-full w-px" style="background:linear-gradient(180deg,${markerColor},transparent);"></div>
-        <div class="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full" style="background:#fff;border:2px solid ${markerColor};box-shadow:0 0 0 4px rgba(255,255,255,0.06),0 0 18px ${markerColor};"></div>
-        <div class="absolute top-4 left-1/2 -translate-x-1/2 whitespace-nowrap mono text-[10px] font-semibold" style="color:${markerColor}">${fmtFeetOrM(state.distance, 1)}</div>
+        <div class="absolute -top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full" style="background:#fff;border:2px solid ${markerColor};box-shadow:0 0 0 4px rgba(255,255,255,0.06),0 0 18px ${markerColor};pointer-events:none;"></div>
+        <div class="absolute top-4 left-1/2 -translate-x-1/2 whitespace-nowrap mono text-[10px] font-semibold" style="color:${markerColor};pointer-events:none;">${fmtFeetOrM(state.distance, 1)}</div>
       </div>`;
 
     // Zone labels
@@ -855,9 +860,49 @@
 
   function bindReset() {
     els.resetBtn.addEventListener('click', () => {
-      Object.assign(state, { distance: 39.4, diagonal: 47.5, hres: 3840, vres: 2160 });
+      Object.assign(state, { distance: 60, diagonal: 55, hres: 3840, vres: 2160 });
       render();
     });
+  }
+
+  // ---------- Zone Track Drag ----------
+  function bindZoneDrag() {
+    const track = els.zoneTrack;
+    let dragging = false;
+    let dragMaxShow = 0;
+
+    function startDrag(e) {
+      // Lock the scale at drag start so the track doesn't rescale mid-drag
+      const r = compute();
+      dragMaxShow = Math.max(state.distance * 1.25, r.upper4k * 1.25, r.pvt * 2.6, 12);
+      dragging = true;
+      document.body.style.cursor = 'grabbing';
+      updateDrag(e);
+    }
+
+    function updateDrag(e) {
+      if (!dragging) return;
+      const rect = track.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const newDist = pct * dragMaxShow;
+      // Clamp to slider range (6–360 inches)
+      state.distance = Math.max(6, Math.min(360, newDist));
+      render();
+    }
+
+    function stopDrag() {
+      if (!dragging) return;
+      dragging = false;
+      document.body.style.cursor = '';
+    }
+
+    track.addEventListener('mousedown', (e) => { e.preventDefault(); startDrag(e); });
+    track.addEventListener('touchstart', (e) => { startDrag(e); }, { passive: true });
+    document.addEventListener('mousemove', updateDrag);
+    document.addEventListener('touchmove', updateDrag, { passive: true });
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchend', stopDrag);
   }
 
   // ---------- Init ----------
@@ -866,6 +911,7 @@
     bindInputs();
     bindUnitToggle();
     bindReset();
+    bindZoneDrag();
     render();
     if (window.lucide) window.lucide.createIcons();
     window.addEventListener('resize', () => render());
