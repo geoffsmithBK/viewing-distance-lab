@@ -11,7 +11,7 @@ An interactive tool for modeling the relationship between screen size, resolutio
 
 ## What It Does
 
-Adjust four inputs — **viewing distance**, **screen diagonal**, **horizontal resolution**, and **vertical resolution** — and instantly see:
+Adjust four inputs — **viewing distance**, **screen diagonal**, **horizontal resolution**, and **vertical resolution** (or drag the viewing distance scale pin) — and instantly see:
 
 | Output | What it tells you |
 |--------|-------------------|
@@ -26,8 +26,8 @@ Adjust four inputs — **viewing distance**, **screen diagonal**, **horizontal r
 ## Presets
 
 Quick-select buttons for common setups:
-- **Resolutions:** 720p, 1080p, 1440p, 4K UHD, 5K, 8K, plus ultrawides
-- **Common screens:** 27" monitor, 32" 4K monitor, 55"–85" 4K TVs (with typical viewing distances)
+- **Resolutions:** 720p, 1080p, 1440p, 4K UHD
+- **Common screens:** 27" monitor, 32" 4K monitor, 55" 4K TV (with typical viewing distances)
 
 ## HAoV Reference Standards
 
@@ -36,9 +36,9 @@ The horizontal angle of view section shows how your setup compares to industry s
 - **10°** — SMPTE NTSC recommendation
 - **28°** — THX theatrical minimum (last row)
 - **30°** — SMPTE HDTV recommendation
-- **40°** — THX home theater optimal
+- **40°** — THX home theater "optimal"
 - **60°** — IMAX theatrical minimum
-- **68°** — Cinerama Dome best seats
+- **68°** — Cinerama Dome "best seats"
 - **120°** — IMAX theatrical maximum
 - **140°** — Average maximum human horizontal field of view
 
@@ -47,7 +47,7 @@ The horizontal angle of view section shows how your setup compares to industry s
 No installation needed. It's a single HTML file with no dependencies.
 
 - **Online:** Visit the [live site](https://geoffsmithbk.github.io/screen-size-viewing-distance/)
-- **Locally:** Open `index.html` in any browser, or serve it with `python3 -m http.server`
+- **Locally:** Open `index.html` in most any browser
 
 ## License
 
